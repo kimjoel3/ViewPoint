@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Therapy AI Chatbot</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  #chat-container {
+    width: 300px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  #user-messages, #ai-messages {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  #user-messages {
+    background-color: #f2f2f2;
+  }
+  #ai-messages {
+    background-color: #e0f0ff;
+  }
+</style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="user-messages"></div>
+    <div id="ai-messages"></div>
+    <input type="text" id="user-input" placeholder="Type your message...">
+    <button id="send-button">Send</button>
+  </div>
+
+  <script>
+    const userMessages = document.getElementById("user-messages");
+    const aiMessages = document.getElementById("ai-messages");
+    const userInput = document.getElementById("user-input");
+    const sendButton = document.getElementById("send-button");
+  
+    function addUserMessage(message) {
+      const messageBox = document.createElement("div");
+      messageBox.className = "user-message";
+      messageBox.textContent = message;
+      userMessages.appendChild(messageBox);
+      userInput.value = ""; // Clear input field
+  
+      // Send user message to Flask backend
+      fetch('/get_response', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ user_input: message })  // Send the user's message
+      })
+      .then(response => response.json())
+      .then(data => {
+          addAIMessage(data.response);  // Display AI response
+      });
+    }
+  
+    function addAIMessage(message) {
+      const messageBox = document.createElement("div");
+      messageBox.className = "ai-message";
+      messageBox.textContent = message;
+      aiMessages.appendChild(messageBox);
+    }
+  
+    function sendMessage() {
+      const userMessage = userInput.value;
+      addUserMessage(userMessage);
+    }
+  
+    sendButton.addEventListener("click", sendMessage);
+    userInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
