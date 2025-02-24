@@ -48,9 +48,22 @@ def chat(user_input, perspectives):
     
     return responses
 
+#@app.route('/')
+#def index():
+#    return render_template('index.html')
+
 @app.route('/')
-def index():
-    return render_template('index.html')
+def welcome_page():
+    return render_template('welcome.html')  # Render the HTML template
+
+@app.route('/login')
+def login_page():
+    return render_template('login.html')  # Render the HTML template
+
+@app.route('/google-login')
+def index_page():
+    return render_template('start.html')  # Render the HTML template
+
 
 @app.route('/get_response', methods=['POST'])
 def get_response():
