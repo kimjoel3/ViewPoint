@@ -1,196 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viewpoint Chat</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top */
-    min-height: 100vh;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViewPoint</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
+            background-size: cover;
+        }
 
-  #chat-container {
-    width: 800px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh; /* Limit height to 90% of viewport */
-  }
+        .sidebar {
+            width: 300px;
+            background-color: #f3e7f9;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 1px solid #ddd;
+        }
 
-  #tabs {
-    display: flex;
-    background: #007bff;
-    padding: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
+        .sidebar-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            font-size: 16px;
+        }
 
-  .tab {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 0 5px;
-    transition: background 0.3s;
-  }
+        .sidebar-item:hover {
+            background-color: #e0d7f5;
+        }
 
-  .tab.active {
-    background: rgba(255, 255, 255, 0.2);
-  }
+        .sidebar-item.active {
+            background-color: #e0d7f5;
+            font-weight: bold;
+        }
 
-  #chat-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    border-bottom: 1px solid #eee;
-    background: #fafafa;
-  }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
+        }
 
-  .message {
-    margin-bottom: 15px;
-    max-width: 70%;
-    padding: 10px 15px;
-    border-radius: 10px;
-    word-wrap: break-word;
-  }
+        .content h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-  .user-message {
-    background: #007bff;
-    color: white;
-    margin-left: auto;
-  }
+        .content .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
 
-  .ai-message {
-    background: #e9ecef;
-    color: #333;
-    margin-right: auto;
-  }
+        #chat-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 70vh;
+        }
 
-  #input-area {
-    display: flex;
-    padding: 10px;
-    background: white;
-    position: sticky;
-    bottom: 0;
-  }
+        #tabs {
+            display: flex;
+            background: #007bff;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
 
-  #user-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-right: 10px;
-  }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: background 0.3s;
+        }
 
-  #send-button {
-    padding: 10px 20px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-  #send-button:hover {
-    background: #0056b3;
-  }
-</style>
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .input-container {
+            position: fixed;
+            bottom: 20px;
+            left: 320px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        .input-container button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #6c63ff;
+        }
+    </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="tabs">
-      <div class="tab active" data-tab="all">All</div>
-      <div class="tab" data-tab="1">Perspective 1</div>
-      <div class="tab" data-tab="2">Perspective 2</div>
-      <div class="tab" data-tab="3">Perspective 3</div>
+    <div class="sidebar">
+        <div class="sidebar-item">
+            <span>👤</span> My Account
+        </div>
+        <div class="sidebar-item">
+            <span>❤️</span> Favorites
+        </div>
+        <div class="sidebar-item">
+            <span>🗑️</span> Trash
+        </div>
+        <hr>
+        <div class="sidebar-item">Yesterday</div>
+        <div class="sidebar-item active">Current Chat</div>
+        <div class="sidebar-item">Difficulties with group member, Alex</div>
+        <div class="sidebar-item">Chat 3</div>
+        <hr>
+        <div class="sidebar-item">Previous 7 Days</div>
+        <div class="sidebar-item">Chat 4</div>
+        <div class="sidebar-item">Chat 5</div>
+        <div class="sidebar-item">Chat 6</div>
+    </div>
+    <div class="content">
+        <div class="icon">✨</div>
+        <h1>Ask ViewPoint For Advice</h1>
+        <div id="chat-container">
+            <div id="tabs">
+                <div class="tab active" data-tab="all">All</div>
+                <div class="tab" data-tab="1">Perspective 1</div>
+                <div class="tab" data-tab="2">Perspective 2</div>
+                <div class="tab" data-tab="3">Perspective 3</div>
+            </div>
+            <div id="chat-messages"></div>
+        </div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ask me anything about your situations">
+        <button id="send-button">➤</button>
     </div>
 
-    <div id="chat-messages"></div>
+    <script>
+        const chatMessages = document.getElementById("chat-messages");
+        const userInput = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+        const tabs = document.querySelectorAll(".tab");
 
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="Type your message...">
-      <button id="send-button">Send</button>
-    </div>
-  </div>
+        let activeTab = "all";
+        let storedConversations = {};
 
-  <script>
-    const chatMessages = document.getElementById("chat-messages");
-    const userInput = document.getElementById("user-input");
-    const sendButton = document.getElementById("send-button");
-    const tabs = document.querySelectorAll(".tab");
+        // Tab switching logic
+        tabs.forEach(tab => {
+            tab.addEventListener("click", function () {
+                tabs.forEach(t => t.classList.remove("active"));
+                this.classList.add("active");
+                activeTab = this.getAttribute("data-tab");
+                displayMessages();
+            });
+        });
 
-    let activeTab = "all";
-    let storedConversations = {};
+        // Display messages for the active tab
+        function displayMessages() {
+            chatMessages.innerHTML = "";
+            const messages = storedConversations[activeTab] || [];
+            messages.forEach(msg => {
+                addMessage(`You: ${msg.user}`, "user-message");
+                addMessage(`AI: ${msg.ai}`, "ai-message");
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+        }
 
-    // Tab switching logic
-    tabs.forEach(tab => {
-      tab.addEventListener("click", function () {
-        tabs.forEach(t => t.classList.remove("active"));
-        this.classList.add("active");
-        activeTab = this.getAttribute("data-tab");
-        displayMessages();
-      });
-    });
+        // Add a message to the chat
+        function addMessage(content, className) {
+            const messageBox = document.createElement("div");
+            messageBox.className = `message ${className}`;
+            messageBox.textContent = content;
+            chatMessages.appendChild(messageBox);
+        }
 
-    // Display messages for the active tab
-    function displayMessages() {
-      chatMessages.innerHTML = "";
-      const messages = storedConversations[activeTab] || [];
-      messages.forEach(msg => {
-        addMessage(`You: ${msg.user}`, "user-message");
-        addMessage(`AI: ${msg.ai}`, "ai-message");
-      });
-      chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
-    }
+        // Send message to backend
+        sendButton.addEventListener("click", () => {
+            const message = userInput.value.trim();
+            if (message) {
+                fetch("/get_response", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_input: message,
+                        tab: activeTab
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        storedConversations = data.conversations;
+                        displayMessages();
+                        userInput.value = ""; // Clear input
+                    });
+            }
+        });
 
-    // Add a message to the chat
-    function addMessage(content, className) {
-      const messageBox = document.createElement("div");
-      messageBox.className = `message ${className}`;
-      messageBox.textContent = content;
-      chatMessages.appendChild(messageBox);
-    }
-
-    // Send message to backend
-    sendButton.addEventListener("click", () => {
-      const message = userInput.value.trim();
-      if (message) {
-        fetch("/get_response", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_input: message,
-            tab: activeTab
-          })
-        })
-          .then(response => response.json())
-          .then(data => {
-            storedConversations = data.conversations;
-            displayMessages();
-            userInput.value = ""; // Clear input
-          });
-      }
-    });
-
-    // Allow pressing Enter to send messages
-    userInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        sendButton.click();
-      }
-    });
-  </script>
+        // Allow pressing Enter to send messages
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                sendButton.click();
+            }
+        });
+    </script>
 </body>
 </html>
