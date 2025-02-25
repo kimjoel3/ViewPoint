@@ -65,7 +65,7 @@
 
         #chat-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -77,26 +77,26 @@
 
         #tabs {
             display: flex;
-            background: #007bff;
+            background: #9A6ABF;
             padding: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 1;
+            border-radius: 15px 15px 0 0;
+            gap: 5px;
+            justify-content: space-around;
         }
 
         .tab {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             color: white;
             cursor: pointer;
-            border-radius: 5px;
-            margin: 0 5px;
+            border-radius: 20px 20px 0 0;
+            font-weight: bold;
             transition: background 0.3s;
         }
 
         .tab.active {
-            background: rgba(255, 255, 255, 0.2);
+            background: #7D4F9E;
         }
 
         #chat-messages {
