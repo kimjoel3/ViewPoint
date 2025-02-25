@@ -159,15 +159,9 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-item">
-            <span>👤</span> My Account
-        </div>
-        <div class="sidebar-item">
-            <span>❤️</span> Favorites
-        </div>
-        <div class="sidebar-item">
-            <span>🗑️</span> Trash
-        </div>
+        <div class="sidebar-item"><span>👤</span> My Account</div>
+        <div class="sidebar-item"><span>❤️</span> Favorites</div>
+        <div class="sidebar-item"><span>🗑️</span> Trash</div>
         <hr>
         <div class="sidebar-item">Yesterday</div>
         <div class="sidebar-item active">Current Chat</div>
@@ -206,7 +200,7 @@
         let activeTab = "all";
         let storedConversations = {};
 
-        // Tab switching logic
+        // **Tab switching logic**
         tabs.forEach(tab => {
             tab.addEventListener("click", function () {
                 tabs.forEach(t => t.classList.remove("active"));
@@ -216,7 +210,7 @@
             });
         });
 
-        // Display messages for the active tab
+        // **Display messages for the active tab**
         function displayMessages() {
             chatMessages.innerHTML = "";
             const messages = storedConversations[activeTab] || [];
@@ -227,7 +221,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
         }
 
-        // Add a message to the chat
         function addMessage(content, className) {
             const messageBox = document.createElement("div");
             messageBox.className = `message ${className}`;
@@ -235,28 +228,35 @@
             chatMessages.appendChild(messageBox);
         }
 
-        // Send message to backend
-        sendButton.addEventListener("click", () => {
-            const message = userInput.value.trim();
-            if (message) {
-                fetch("/get_response", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        user_input: message,
-                        tab: activeTab
-                    })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        storedConversations = data.conversations;
-                        displayMessages();
-                        userInput.value = ""; // Clear input
-                    });
+        function sendMessage(message) {
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_input: message, tab: activeTab })
+            })
+            .then(response => response.json())
+            .then(data => {
+                storedConversations = data.conversations;
+                displayMessages();
+                userInput.value = "";
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const storedQuestion = localStorage.getItem("pendingQuestion");
+            if (storedQuestion) {
+                localStorage.removeItem("pendingQuestion");
+                sendMessage(storedQuestion);
             }
         });
 
-        // Allow pressing Enter to send messages
+        sendButton.addEventListener("click", () => {
+            const message = userInput.value.trim();
+            if (message) {
+                sendMessage(message);
+            }
+        });
+
         userInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 sendButton.click();

@@ -79,7 +79,11 @@ def login_page():
 
 @app.route('/google-login')
 def index_page():
-    return render_template('start.html')  # Render the HTML template
+    return render_template(' startnobar.html') # Render the HTML template
+
+@app.route('/start.html')
+def start_page():
+    return render_template('start.html') # Render the HTML template
 
 
 @app.route('/get_response', methods=['POST'])

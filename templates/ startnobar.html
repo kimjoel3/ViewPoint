@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViewPoint</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle, #f3e7e9, #e3eeff, #dcd6f7);
+            background-size: cover;
+        }
+
+        .menu-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: black;
+            z-index: 3;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: #f3e7f9;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-right: 1px solid #ddd;
+            transition: left 0.3s ease-in-out;
+            z-index: 2;
+            visibility: hidden;
+        }
+
+        .sidebar.open {
+            left: 0;
+            visibility: visible;
+        }
+
+        .menu-icon.moved {
+            left: 260px !important;
+        }
+
+        .sidebar-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            font-size: 16px;
+            justify-content: space-between;
+        }
+
+        .sidebar-item:hover {
+            background-color: #e0d7f5;
+        }
+
+        .icon {
+            font-size: 50px;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            position: fixed;
+            bottom: 20px;
+            left: 320px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        .input-container button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #6c63ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">☰</div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-item">
+            <span>👤 My Account</span>
+        </div>
+        <div class="sidebar-item">❤️ Favorites</div>
+        <div class="sidebar-item">🗑️ Trash</div>
+        <hr>
+        <div class="sidebar-item">Yesterday</div>
+        <div class="sidebar-item active">Current Chat</div>
+        <div class="sidebar-item">Difficulties with group member, Alex</div>
+        <div class="sidebar-item">Chat 3</div>
+        <hr>
+        <div class="sidebar-item">Previous 7 Days</div>
+        <div class="sidebar-item">Chat 4</div>
+        <div class="sidebar-item">Chat 5</div>
+        <div class="sidebar-item">Chat 6</div>
+    </div>
+    <div class="icon">✨</div>
+    <h1>Ask ViewPoint For Advice</h1>
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ask me anything about your situations">
+        <button id="send-button">➤</button>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            let sidebar = document.getElementById("sidebar");
+            let menuIcon = document.getElementById("menuIcon");
+            if (sidebar.classList.contains("open")) {
+                sidebar.classList.remove("open");
+                menuIcon.classList.remove("moved");
+                setTimeout(() => {
+                    sidebar.style.visibility = "hidden";
+                }, 300);
+            } else {
+                sidebar.style.visibility = "visible";
+                sidebar.classList.add("open");
+                menuIcon.classList.add("moved");
+            }
+        }
+
+        const userInput = document.getElementById("user-input");
+        const sendButton = document.getElementById("send-button");
+
+        sendButton.addEventListener("click", () => {
+            const message = userInput.value.trim();
+            if (message) { // Store the user's input in localStorage before redirection
+                localStorage.setItem("pendingQuestion", message);
+                window.location.href = "start.html";
+            }
+        });
+
+    </script>
+</body>
+</html>
