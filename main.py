@@ -60,7 +60,7 @@ def first_chat(user_input, perspectives):
         )
         
         # Prepend the descriptor to the AI's response
-        ai_response = f"As {descriptor.lower()}... {response.choices[0].message.content.strip()}"
+        ai_response = f" {response.choices[0].message.content.strip()}"
         responses[num_key] = ai_response
 
     return responses
