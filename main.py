@@ -10,17 +10,17 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 
-session_id = str(uuid.uuid4())  # Unique session ID
+session_id = str(uuid.uuid4()) 
 print("Session ID:", session_id)
 
-conversations = {}  # Stores messages per perspective
+conversations = {} 
 
 with open("perspectivesPrompt.txt", "r") as file:
     prompt_context = file.read().strip()
 
 def generatePerspectives(user_input):
     response = client.chat.completions.create(
-        model="gpt-4",  # Updated model name
+        model="gpt-4o-mini", 
         messages=[
             {"role": "system", "content": prompt_context},
             {"role": "user", "content": user_input}
@@ -50,7 +50,7 @@ def first_chat(user_input, perspectives):
         
         
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": f"Respond as {descriptor}. Make it natural, brief, and realistic. Start your response by stating your perspective descriptor (e.g., 'As an empathetic listener...')."},
                 {"role": "user", "content": f"Given the following situation:\n{user_input}"}
@@ -91,7 +91,7 @@ def get_response():
     global conversations
     data = request.json
     user_input = data.get('user_input', "").strip()
-    selected_tab = data.get('tab', "all")  # Get the selected tab (e.g., "1", "2", "3", or "all")
+    selected_tab = data.get('tab', "all")  
 
     if session_id not in conversations:
         conversations[session_id] = {str(i): [] for i in range(1, 4)}
@@ -135,7 +135,7 @@ def get_response():
 
             # Generate AI response **only for the selected perspective(s)**
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-o-mini",
                 messages=chat_history,
                 temperature=0.7,
                 max_tokens=200
