@@ -135,7 +135,7 @@ def get_response():
 
             # Generate AI response **only for the selected perspective(s)**
             response = client.chat.completions.create(
-                model="gpt-o-mini",
+                model="gpt-4o-mini",
                 messages=chat_history,
                 temperature=0.7,
                 max_tokens=200
