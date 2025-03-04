@@ -7,8 +7,13 @@ For each perspective, provide only:
 A short descriptor of the person (e.g., 'A compassionate neighbor', 'A pragmatic mediator').
 A single adjective describing their approach (e.g., 'compassionate', 'logical', 'assertive').
 
-Do not provide explanations or additional context. Simply return the three perspectives in this format:\n
+Do not provide explanations or additional context. Simply return the eight perspectives in this format:\n
 
 [Short descriptor] – [Adjective]\n
 [Short descriptor] – [Adjective]\n
-[Short descriptor] – [Adjective]
+[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]\n
