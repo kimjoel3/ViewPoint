@@ -316,30 +316,33 @@ function createChatTabs() {
 
 
 // Fetch messages for a specific perspective
-function fetchPerspectiveMessages(tab) {
-    const userInput = document.getElementById("user-input").value.trim();
-    
-    // Only proceed if we have a user input or if showing existing messages (tab switch)
-    if (userInput || tab !== 'all') {
-        fetch("/get_response", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                user_input: userInput,
-                tab: tab,
-                selected_perspectives: selectedPerspectives
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Perspective Messages:", data);
-            updateChatInterface(data);
-            // Clear input after sending
-            document.getElementById("user-input").value = "";
-        })
-        .catch(error => console.error("Error fetching perspective messages:", error));
-    }
+function fetchPerspectives(userInput) {
+    initialUserInput = userInput; // Store the initial user input for later use
+    const spinner = document.getElementById("loading-spinner");
+    spinner.style.display = "block";  // show loading spinner before prompts load
+
+    fetch("/get_response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_input: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        spinner.style.display = "none";  // hide spinner once data is back
+        console.log("Backend Response:", data); // Log the response
+        if (data.perspectives) {
+            perspectives = data.perspectives; // Store the fetched perspectives
+            displayPerspectives(); // Render the perspectives as buttons
+        } else {
+            console.error("No perspectives found in response:", data);
+        }
+    })
+    .catch(error => {
+        spinner.style.display = "none"; 
+        console.error("Error fetching perspectives:", error);
+    });
 }
+
 
 // Send user input to the backend
 document.getElementById("send-button").addEventListener("click", () => {
