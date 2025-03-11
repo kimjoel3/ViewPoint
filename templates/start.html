@@ -182,25 +182,23 @@
     </div>
 
     <script>
-     let selectedPerspectives = [];
+
+
+let selectedPerspectives = [];
 let perspectives = {};
+let initialUserInput = "";
 
 // Fetch perspectives from the backend
-function fetchPerspectives(userInput, tab = "all") {
-    const spinner = document.getElementById("loading-spinner");
-    // when generating perspectives first show a spinner so it's not fully blank
-    spinner.style.display = "block";
+function fetchPerspectives(userInput) {
+    initialUserInput = userInput; // Store the initial user input for later use
     
     fetch("/get_response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userInput, tab: tab })
+        body: JSON.stringify({ user_input: userInput })
     })
     .then(response => response.json())
     .then(data => {
-        // when data is sent back hide the spinner as it's loaded
-        spinner.style.display = "none";
-        
         console.log("Backend Response:", data); // Log the response
         if (data.perspectives) {
             perspectives = data.perspectives; // Store the fetched perspectives
@@ -209,10 +207,7 @@ function fetchPerspectives(userInput, tab = "all") {
             console.error("No perspectives found in response:", data);
         }
     })
-    .catch(error => {
-        spinner.style.display = "none";
-        console.error("Error fetching perspectives:", error);
-    });
+    .catch(error => console.error("Error fetching perspectives:", error));
 }
 
 // Render perspectives as clickable buttons
@@ -246,61 +241,104 @@ function displayPerspectives() {
 // Confirm selection and initialize chat
 document.getElementById("confirm-selection").addEventListener("click", () => {
     if (selectedPerspectives.length === 3) {
-        initializeChat();
+        // Send selected perspectives to backend and initialize chat
+        confirmPerspectivesAndInitializeChat();
     } else {
         alert("Please select exactly 3 perspectives.");
     }
 });
 
-// Initialize chat interface
-function initializeChat() {
-    // Show the chat container
-    document.getElementById("chat-container").style.display = "block";
-
-    // Create tabs for the selected perspectives
-    const tabsContainer = document.getElementById("tabs");
-    tabsContainer.innerHTML = selectedPerspectives.map(key => 
-        `<div class="tab" data-tab="${key}">${perspectives[key]}</div>`).join("");
-
-    // Activate the first tab
-    tabsContainer.firstChild.classList.add("active");
-
-    // Fetch and display the initial chat responses
-    fetchInitialChatResponses();
-}
-
-// Fetch initial chat responses from the backend
-function fetchInitialChatResponses() {
-    const userInput = document.getElementById("user-input").value.trim();
-
+// Send selected perspectives to backend and initialize chat
+function confirmPerspectivesAndInitializeChat() {
     fetch("/get_response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userInput, tab: "all" })
+        body: JSON.stringify({ 
+            user_input: initialUserInput, // Use the stored initial input
+            selected_perspectives: selectedPerspectives // Send the selected perspectives
+        })
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Initial Chat Responses:", data);
+        console.log("Perspective Confirmation Response:", data);
+        
+        // Now show the chat interface
+        document.getElementById("chat-container").style.display = "block";
+        
+        // Create tabs for the selected perspectives
+        createChatTabs();
+        
+        // Update the chat with initial messages
         updateChatInterface(data);
+        
+        // Clear the initial perspective selection UI
+        document.querySelector('h1').style.display = 'none';
+        document.getElementById('perspective-list').style.display = 'none';
+        document.getElementById('confirm-selection').style.display = 'none';
     })
-    .catch(error => console.error("Error fetching initial chat responses:", error));
+    .catch(error => console.error("Error confirming perspectives:", error));
 }
 
-// Update the chat interface with responses
-function updateChatInterface(data) {
-    const chatMessages = document.getElementById("chat-messages");
-    chatMessages.innerHTML = "";
-
-    // Display the initial responses
+// Create tabs for the chat interface
+function createChatTabs() {
+    const tabsContainer = document.getElementById("tabs");
+    tabsContainer.innerHTML = "";
+    
+    // Add "All" tab first
+    const allTab = document.createElement("div");
+    allTab.className = "tab active";
+    allTab.textContent = "All Perspectives";
+    allTab.setAttribute("data-tab", "all");
+    tabsContainer.appendChild(allTab);
+    
+    // Add individual perspective tabs
     selectedPerspectives.forEach(key => {
-        const response = data.responses[key];
-        if (response) {
-            const messageDiv = document.createElement("div");
-            messageDiv.className = "message";
-            messageDiv.innerHTML = `<strong>${perspectives[key]}:</strong> ${response}`;
-            chatMessages.appendChild(messageDiv);
-        }
+        const tab = document.createElement("div");
+        tab.className = "tab";
+        tab.textContent = perspectives[key];
+        tab.setAttribute("data-tab", key);
+        tabsContainer.appendChild(tab);
     });
+    
+    // Add tab click events
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Just display the existing messages for the selected tab
+            // No need to make an API call just for tab switching
+            displayMessagesForTab(this.getAttribute('data-tab'));
+        });
+    });
+}
+
+
+
+// Fetch messages for a specific perspective
+function fetchPerspectiveMessages(tab) {
+    const userInput = document.getElementById("user-input").value.trim();
+    
+    // Only proceed if we have a user input or if showing existing messages (tab switch)
+    if (userInput || tab !== 'all') {
+        fetch("/get_response", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                user_input: userInput,
+                tab: tab,
+                selected_perspectives: selectedPerspectives
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Perspective Messages:", data);
+            updateChatInterface(data);
+            // Clear input after sending
+            document.getElementById("user-input").value = "";
+        })
+        .catch(error => console.error("Error fetching perspective messages:", error));
+    }
 }
 
 // Send user input to the backend
@@ -308,9 +346,108 @@ document.getElementById("send-button").addEventListener("click", () => {
     const message = document.getElementById("user-input").value.trim();
     if (!message) return;
 
-    // Fetch perspectives and initialize the first chat
-    fetchPerspectives(message, "all"); // Pass the selected tab
+    // If we haven't initialized the chat yet, fetch perspectives
+    if (Object.keys(perspectives).length === 0) {
+        fetchPerspectives(message);
+    } else {
+        // Otherwise, send the new message
+        sendMessage();
+    }
 });
+
+// Allow sending messages with Enter key
+document.getElementById("user-input").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        document.getElementById("send-button").click();
+    }
+});
+
+
+
+
+// Display messages for the selected tab without making API calls
+function displayMessagesForTab(tab) {
+    const chatMessages = document.getElementById("chat-messages");
+    chatMessages.innerHTML = "";
+    
+    // If we have conversation data, filter and display accordingly
+    if (conversationHistory && conversationHistory.conversations) {
+        if (tab === 'all') {
+            // Display messages from all selected perspectives
+            if (conversationHistory.conversations.all) {
+                conversationHistory.conversations.all.forEach(message => {
+                    const messageDiv = document.createElement("div");
+                    messageDiv.className = "message";
+                    messageDiv.innerHTML = `
+                        <p><strong>${perspectives[message.perspective]}:</strong></p>
+                        <p>${message.ai}</p>
+                    `;
+                    chatMessages.appendChild(messageDiv);
+                });
+            }
+        } else {
+            // Display messages only from the selected perspective
+            if (conversationHistory.conversations[tab]) {
+                conversationHistory.conversations[tab].forEach(message => {
+                    const messageDiv = document.createElement("div");
+                    messageDiv.className = "message";
+                    messageDiv.innerHTML = `
+                        <p><strong>${perspectives[tab]}:</strong></p>
+                        <p>${message.ai}</p>
+                    `;
+                    chatMessages.appendChild(messageDiv);
+                });
+            }
+        }
+    }
+}
+
+// Let's keep track of conversation history globally
+let conversationHistory = {};
+
+// Update the updateChatInterface function to store the conversation history
+function updateChatInterface(data) {
+    // Save the conversation history
+    conversationHistory = data;
+    
+    const chatMessages = document.getElementById("chat-messages");
+    chatMessages.innerHTML = "";
+
+    // Get the active tab
+    const activeTab = document.querySelector('.tab.active');
+    const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'all';
+    
+    // Display messages based on the active tab
+    displayMessagesForTab(currentTab);
+}
+
+// Fetch messages only when sending a new message, not when switching tabs
+function sendMessage() {
+    const userInput = document.getElementById("user-input").value.trim();
+    if (!userInput) return;
+    
+    const activeTab = document.querySelector('.tab.active');
+    const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'all';
+    
+    fetch("/get_response", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            user_input: userInput,
+            tab: currentTab,
+            selected_perspectives: selectedPerspectives
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("New Message Response:", data);
+        updateChatInterface(data);
+        document.getElementById("user-input").value = "";
+    })
+    .catch(error => console.error("Error sending message:", error));
+}
+
+
 
     </script>
 </body>
