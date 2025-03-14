@@ -14,6 +14,16 @@
             background-size: cover;
         }
 
+        /* spinner now displays halfway down the screen instead of just at top */
+        #loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
         .spinner-icon {
             display: inline-block;
             width: 20px;
@@ -23,9 +33,9 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 5px;
-            }
+        }
 
-            @keyframes spin {
+        @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -164,7 +174,7 @@
 <body>
     <div class="content">
         <h1>Select 3 Perspectives</h1>
-        <div id="loading-spinner" style="display: none; text-align: center; margin: 10px 0;">
+        <div id="loading-spinner">
             <span class="spinner-icon"></span> Loading perspectives...
         </div>
         <div class="perspective-list" id="perspective-list"></div>
@@ -182,8 +192,6 @@
     </div>
 
     <script>
-
-
 let selectedPerspectives = [];
 let perspectives = {};
 let initialUserInput = "";
@@ -250,6 +258,11 @@ document.getElementById("confirm-selection").addEventListener("click", () => {
 
 // Send selected perspectives to backend and initialize chat
 function confirmPerspectivesAndInitializeChat() {
+    // spinner now says loading responses instead of loading perspectives AFTER perspectives confirmed
+    var spinner = document.getElementById("loading-spinner");
+    spinner.innerHTML = '<span class="spinner-icon"></span> Loading responses...';
+    spinner.style.display = "block";
+    
     fetch("/get_response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -260,6 +273,8 @@ function confirmPerspectivesAndInitializeChat() {
     })
     .then(response => response.json())
     .then(data => {
+        // remove spinner once data is received
+        spinner.style.display = "none";
         console.log("Perspective Confirmation Response:", data);
         
         // Now show the chat interface
@@ -276,7 +291,10 @@ function confirmPerspectivesAndInitializeChat() {
         document.getElementById('perspective-list').style.display = 'none';
         document.getElementById('confirm-selection').style.display = 'none';
     })
-    .catch(error => console.error("Error confirming perspectives:", error));
+    .catch(error => {
+        spinner.style.display = "none";
+        console.error("Error confirming perspectives:", error);
+    });
 }
 
 // Create tabs for the chat interface
@@ -313,8 +331,6 @@ function createChatTabs() {
     });
 }
 
-
-
 // Fetch messages for a specific perspective
 function fetchPerspectives(userInput) {
     initialUserInput = userInput; // Store the initial user input for later use
@@ -343,7 +359,6 @@ function fetchPerspectives(userInput) {
     });
 }
 
-
 // Send user input to the backend
 document.getElementById("send-button").addEventListener("click", () => {
     const message = document.getElementById("user-input").value.trim();
@@ -365,9 +380,6 @@ document.getElementById("user-input").addEventListener("keypress", (e) => {
     }
 });
 
-
-
-
 // Display messages for the selected tab without making API calls
 function displayMessagesForTab(tab) {
     const chatMessages = document.getElementById("chat-messages");
@@ -381,10 +393,9 @@ function displayMessagesForTab(tab) {
                 conversationHistory.conversations.all.forEach(message => {
                     const messageDiv = document.createElement("div");
                     messageDiv.className = "message";
-                    messageDiv.innerHTML = `
-                        <p><strong>${perspectives[message.perspective]}:</strong></p>
-                        <p>${message.ai}</p>
-                    `;
+                    messageDiv.innerHTML = 
+                        `<p><strong>${perspectives[message.perspective]}:</strong></p>
+                        <p>${message.ai}</p>`;
                     chatMessages.appendChild(messageDiv);
                 });
             }
@@ -394,10 +405,9 @@ function displayMessagesForTab(tab) {
                 conversationHistory.conversations[tab].forEach(message => {
                     const messageDiv = document.createElement("div");
                     messageDiv.className = "message";
-                    messageDiv.innerHTML = `
-                        <p><strong>${perspectives[tab]}:</strong></p>
-                        <p>${message.ai}</p>
-                    `;
+                    messageDiv.innerHTML = 
+                        `<p><strong>${perspectives[tab]}:</strong></p>
+                        <p>${message.ai}</p>`;
                     chatMessages.appendChild(messageDiv);
                 });
             }
@@ -449,9 +459,6 @@ function sendMessage() {
     })
     .catch(error => console.error("Error sending message:", error));
 }
-
-
-
     </script>
 </body>
 </html>
