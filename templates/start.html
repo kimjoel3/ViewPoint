@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ViewPoint</title>
     <style>
         body {
@@ -26,24 +27,31 @@
             text-align: center;
             align-items: center;
             justify-content: center;
-            gap: 10px; /* Space between spinner and text */
+            gap: 10px;
+            /* Space between spinner and text */
             font-size: 18px;
             font-weight: bold;
-            color: #7D4F9E; /* Match the theme color */
+            color: #7d4f9e;
+            /* Match the theme color */
         }
 
         .spinner-icon {
             width: 24px;
             height: 24px;
             border: 3px solid #ccc;
-            border-top: 3px solid #7D4F9E;
+            border-top: 3px solid #7d4f9e;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .sidebar {
@@ -84,22 +92,22 @@
         }
 
         #chat-container {
-            margin: 20px auto; 
+            margin: 20px auto;
             width: 100%;
             max-width: 1150px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* scrolling if content overflows */
+            overflow-y: auto;
+            /* scrolling if content overflows */
             display: flex;
             flex-direction: column;
             max-height: 60vh;
         }
 
-
         #tabs {
             display: flex;
-            background: #9A6ABF;
+            background: #9a6abf;
             padding: 10px;
             border-radius: 15px 15px 0 0;
             gap: 5px;
@@ -118,7 +126,7 @@
         }
 
         .tab.active {
-            background: #7D4F9E;
+            background: #7d4f9e;
         }
 
         #chat-messages {
@@ -138,7 +146,7 @@
 
         .perspective-item {
             padding: 10px;
-            border: 2px solid #9A6ABF;
+            border: 2px solid #9a6abf;
             border-radius: 8px;
             cursor: pointer;
             text-align: center;
@@ -148,24 +156,28 @@
         }
 
         .perspective-item.selected {
-            background: #9A6ABF;
+            background: #9a6abf;
             color: white;
-            border-color: #7D4F9E;
+            border-color: #7d4f9e;
         }
 
         .input-container {
             position: fixed;
             bottom: 20px;
-            left: 50%; /* Move to the center of the page */
-            transform: translateX(-50%); /* Shift it back by half its width */
+            left: 50%;
+            /* Move to the center of the page */
+            transform: translateX(-50%);
+            /* Shift it back by half its width */
             display: flex;
             align-items: center;
             background-color: #fff;
             border-radius: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 10px 20px;
-            width: 75%; /* Adjust width as needed */
-            max-width: 1200px; /* Prevent it from becoming too wide on large screens */
+            width: 75%;
+            /* Adjust width as needed */
+            max-width: 1200px;
+            /* Prevent it from becoming too wide on large screens */
         }
 
         .input-container input {
@@ -183,29 +195,50 @@
             font-size: 20px;
             color: #6c63ff;
         }
+
         #confirm-selection {
             display: block;
-            margin: 20px auto; /* center button */
-            padding: 16px 32px; 
+            margin: 20px auto;
+            /* center button */
+            padding: 16px 32px;
             font-size: 18px;
             font-weight: bold;
-            background: #e3d9ee; /* light purple bg */
-            color: #7D4F9E; /* dark purple text */
+            background: #e3d9ee;
+            /* light purple bg */
+            color: #7d4f9e;
+            /* dark purple text */
             border: none;
-            border-radius: 20px; /*round corners */
+            border-radius: 20px;
+            /* round corners */
             cursor: pointer;
             transition: background 0.3s, transform 0.2s;
-            width: 25%; 
+            width: 25%;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
+
+        /* New styles for messages */
+        .user-message {
+            text-align: right;
+            margin: 10px 0;
+            padding: 5px;
+        }
+
+        .ai-message {
+            text-align: left;
+            margin: 10px 0;
+            padding: 5px;
+        }
     </style>
 </head>
+
 <body>
     <!-- New header block -->
     <div id="header" style="text-align: center; margin-top: 40px; margin-bottom: 0px;">
         <div style="font-size: 36px; font-weight: bold;">Viewpoint</div>
-        <div id="subheading" style="font-size: 18px; padding-top: 20px;"> Step 1: Describe your situation</div>
+        <div id="subheading" style="font-size: 18px; padding-top: 20px;">
+            Step 1: Describe your situation
+        </div>
     </div>
 
     <div class="content">
@@ -214,287 +247,299 @@
             <span class="spinner-icon"></span> Loading perspectives...
         </div>
         <div class="perspective-list" id="perspective-list"></div>
-        <button id="confirm-selection">Confirm Selection</button> 
-        
+        <button id="confirm-selection">Confirm Selection</button>
+
         <div id="chat-container" style="display: none;">
             <div id="tabs"></div>
             <div id="chat-messages"></div>
         </div>
     </div>
-    
+
     <div class="input-container">
-        <input type="text" id="user-input" placeholder="Ask me anything about your situation">
+        <input type="text" id="user-input" placeholder="Ask me anything about your situation" />
         <button id="send-button">➤</button>
     </div>
 
     <script>
-let selectedPerspectives = [];
-let perspectives = {};
-let initialUserInput = "";
+        let selectedPerspectives = [];
+        let perspectives = {};
+        let initialUserInput = "";
 
-// Fetch perspectives from the backend
-function fetchPerspectives(userInput) {
-    initialUserInput = userInput; // Store the initial user input for later use
-    
-    fetch("/get_response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userInput })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Backend Response:", data); // Log the response
-        if (data.perspectives) {
-            perspectives = data.perspectives; // Store the fetched perspectives
-            displayPerspectives(); // Render the perspectives as buttons
-        } else {
-            console.error("No perspectives found in response:", data);
+        // Fetch perspectives from the backend
+        function fetchPerspectives(userInput) {
+            initialUserInput = userInput; // Store the initial user input for later use
+
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_input: userInput })
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Backend Response:", data); // Log the response
+                    if (data.perspectives) {
+                        perspectives = data.perspectives; // Store the fetched perspectives
+                        displayPerspectives(); // Render the perspectives as buttons
+                    } else {
+                        console.error("No perspectives found in response:", data);
+                    }
+                })
+                .catch((error) =>
+                    console.error("Error fetching perspectives:", error)
+                );
         }
-    })
-    .catch(error => console.error("Error fetching perspectives:", error));
-}
 
-// Render perspectives as clickable buttons
-function displayPerspectives() {
-    const list = document.getElementById("perspective-list");
-    list.innerHTML = ""; // Clear the list before rendering
+        // Render perspectives as clickable buttons
+        function displayPerspectives() {
+            const list = document.getElementById("perspective-list");
+            list.innerHTML = ""; // Clear the list before rendering
 
-    console.log("Perspectives to Render:", perspectives); // Log the perspectives
+            console.log("Perspectives to Render:", perspectives); // Log the perspectives
 
-    Object.entries(perspectives).forEach(([key, text]) => {
-        const button = document.createElement("button");
-        button.className = "perspective-item";
-        button.textContent = text;
-        button.setAttribute("data-key", key);
+            Object.entries(perspectives).forEach(([key, text]) => {
+                const button = document.createElement("button");
+                button.className = "perspective-item";
+                button.textContent = text;
+                button.setAttribute("data-key", key);
 
-        button.addEventListener("click", () => {
-            if (selectedPerspectives.includes(key)) {
-                selectedPerspectives = selectedPerspectives.filter(k => k !== key);
-                button.classList.remove("selected");
-            } else if (selectedPerspectives.length < 3) {
-                selectedPerspectives.push(key);
-                button.classList.add("selected");
-            }
-            console.log("Selected Perspectives:", selectedPerspectives);
-        });
+                button.addEventListener("click", () => {
+                    if (selectedPerspectives.includes(key)) {
+                        selectedPerspectives = selectedPerspectives.filter(
+                            (k) => k !== key
+                        );
+                        button.classList.remove("selected");
+                    } else if (selectedPerspectives.length < 3) {
+                        selectedPerspectives.push(key);
+                        button.classList.add("selected");
+                    }
+                    console.log("Selected Perspectives:", selectedPerspectives);
+                });
 
-        list.appendChild(button);
-    });
-}
-
-// Confirm selection and initialize chat
-document.getElementById("confirm-selection").addEventListener("click", () => {
-    if (selectedPerspectives.length === 3) {
-        // Send selected perspectives to backend and initialize chat
-        confirmPerspectivesAndInitializeChat();
-    } else {
-        // force user to select 3
-        alert("Please select exactly 3 perspectives.");
-    }
-});
-
-// Send selected perspectives to backend and initialize chat
-function confirmPerspectivesAndInitializeChat() {
-    var spinner = document.getElementById("loading-spinner");
-
-    spinner.innerHTML = '<span class="spinner-icon"></span> Loading responses...';
-    spinner.style.display = "flex"; 
-
-    fetch("/get_response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            user_input: initialUserInput,
-            selected_perspectives: selectedPerspectives
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        // remove spinner when response is loaded
-        spinner.style.display = "none";
-        console.log("Perspective Confirmation Response:", data);
-        
-        document.getElementById("chat-container").style.display = "block";
-        // Update header text to indicate follow-up messaging
-        document.getElementById("subheading").textContent = "Step 3: Follow-up with specific perspectives";
-        
-        // Create tabs for the selected perspectives
-        createChatTabs();
-        
-        // Update the chat with initial messages
-        updateChatInterface(data);
-        
-        // Clear the initial perspective selection UI
-        document.querySelector('h1').style.display = 'none';
-        document.getElementById('perspective-list').style.display = 'none';
-        document.getElementById('confirm-selection').style.display = 'none';
-
-        // update user input box to prompt with instructions for followup
-        document.getElementById("user-input").placeholder = "Enter follow-up message for a specific perspective";
-        // clear previous user entry once ready for follow-up stage
-        document.getElementById("user-input").value = "";
-    })
-    .catch(error => {
-        spinner.style.display = "none";
-        console.error("Error confirming perspectives:", error);
-    });
-}
-
-// updated to remove the 'all perspectives' tab
-function createChatTabs() {
-    const tabsContainer = document.getElementById("tabs");
-    tabsContainer.innerHTML = "";
-    
-    // Instead of adding an "All" tab, loop over the selected perspectives
-    selectedPerspectives.forEach((key, index) => {
-        const tab = document.createElement("div");
-        tab.className = "tab";
-        // Make the first tab active by default
-        if (index === 0) {
-            tab.classList.add("active");
-        }
-        tab.textContent = perspectives[key];
-        tab.setAttribute("data-tab", key);
-        tabsContainer.appendChild(tab);
-    });
-    
-    // Add click events to each tab
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            // Display messages only for the selected perspective
-            displayMessagesForTab(this.getAttribute('data-tab'));
-        });
-    });
-}
-
-
-// Fetch messages for a specific perspective
-function fetchPerspectives(userInput) {
-    initialUserInput = userInput; // Store the initial user input for later use
-    const spinner = document.getElementById("loading-spinner");
-    spinner.style.display = "flex";  // show loading spinner before prompts load
-
-    fetch("/get_response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userInput })
-    })
-    .then(response => response.json())
-    .then(data => {
-        spinner.style.display = "none";  // hide spinner once data is back
-        console.log("Backend Response:", data); // Log the response
-        if (data.perspectives) {
-            perspectives = data.perspectives; // Store the fetched perspectives
-            displayPerspectives(); // Render the perspectives as buttons
-        } else {
-            console.error("No perspectives found in response:", data);
-        }
-    })
-    .catch(error => {
-        spinner.style.display = "none"; 
-        console.error("Error fetching perspectives:", error);
-    });
-}
-
-// Send user input to the backend
-document.getElementById("send-button").addEventListener("click", () => {
-    const message = document.getElementById("user-input").value.trim();
-    if (!message) return;
-
-    // If we haven't initialized the chat yet, fetch perspectives
-    if (Object.keys(perspectives).length === 0) {
-        // Update header to prompt perspective selection
-        document.getElementById("subheading").textContent = "Step 2: Select 3 perspectives";
-        fetchPerspectives(message);
-    } else {
-        // Otherwise, send the new message
-        sendMessage();
-    }
-});
-
-// Allow sending messages with Enter key
-document.getElementById("user-input").addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-        document.getElementById("send-button").click();
-    }
-});
-
-// Display messages for the selected tab without making API calls
-function displayMessagesForTab(tab) {
-    const chatMessages = document.getElementById("chat-messages");
-    chatMessages.innerHTML = "";
-    
-    if (conversationHistory && conversationHistory.conversations) {
-        // Display messages only for the selected perspective (tab)
-        if (conversationHistory.conversations[tab]) {
-            conversationHistory.conversations[tab].forEach(message => {
-                const messageDiv = document.createElement("div");
-                messageDiv.className = "message";
-                messageDiv.innerHTML = 
-                    `<p><strong>${perspectives[tab]}:</strong></p>
-                     <p>${message.ai}</p>`;
-                chatMessages.appendChild(messageDiv);
+                list.appendChild(button);
             });
         }
-    }
-}
 
+        // Confirm selection and initialize chat
+        document
+            .getElementById("confirm-selection")
+            .addEventListener("click", () => {
+                if (selectedPerspectives.length === 3) {
+                    confirmPerspectivesAndInitializeChat();
+                } else {
+                    alert("Please select exactly 3 perspectives.");
+                }
+            });
 
-// Let's keep track of conversation history globally
-let conversationHistory = {};
+        // Send selected perspectives to backend and initialize chat
+        function confirmPerspectivesAndInitializeChat() {
+            var spinner = document.getElementById("loading-spinner");
 
-// Update the updateChatInterface function to store the conversation history
-function updateChatInterface(data) {
-    // Save the conversation history
-    conversationHistory = data;
-    
-    const chatMessages = document.getElementById("chat-messages");
-    chatMessages.innerHTML = "";
+            spinner.innerHTML =
+                '<span class="spinner-icon"></span> Loading responses...';
+            spinner.style.display = "flex";
 
-    // Get the active tab
-    const activeTab = document.querySelector('.tab.active');
-    const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'all';
-    
-    // Display messages based on the active tab
-    displayMessagesForTab(currentTab);
-}
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_input: initialUserInput,
+                    selected_perspectives: selectedPerspectives
+                })
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    spinner.style.display = "none";
+                    console.log("Perspective Confirmation Response:", data);
 
-// Fetch messages only when sending a new message, not when switching tabs
-function sendMessage() {
-    const userInput = document.getElementById("user-input").value.trim();
-    if (!userInput) return;
-    
-    const activeTab = document.querySelector('.tab.active');
-    const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'all';
-    
-    // show spinner while waiting for followup
-    const spinner = document.getElementById("loading-spinner");
-    spinner.innerHTML = '<span class="spinner-icon"></span> Loading follow-up response...';
-    spinner.style.display = "flex";
+                    document.getElementById("chat-container").style.display = "block";
+                    document.getElementById("subheading").textContent =
+                        "Step 3: Follow-up with specific perspectives";
 
-    fetch("/get_response", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            user_input: userInput,
-            tab: currentTab,
-            selected_perspectives: selectedPerspectives
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        spinner.style.display = "none"; // when response returns remove spinner
-        console.log("New Message Response:", data);
-        updateChatInterface(data);
-        document.getElementById("user-input").value = "";
-    })
-    .catch(error => {
-        spinner.style.display = "none"; 
-        console.error("Error sending message:", error);
-    });
-}
+                    createChatTabs();
+                    updateChatInterface(data);
+
+                    document.querySelector("h1").style.display = "none";
+                    document.getElementById("perspective-list").style.display = "none";
+                    document.getElementById("confirm-selection").style.display = "none";
+
+                    document.getElementById("user-input").placeholder =
+                        "Enter follow-up message for a specific perspective";
+                    document.getElementById("user-input").value = "";
+                })
+                .catch((error) => {
+                    spinner.style.display = "none";
+                    console.error("Error confirming perspectives:", error);
+                });
+        }
+
+        // Create tabs for the chat interface (only one tab per selected perspective)
+        function createChatTabs() {
+            const tabsContainer = document.getElementById("tabs");
+            tabsContainer.innerHTML = "";
+
+            selectedPerspectives.forEach((key, index) => {
+                const tab = document.createElement("div");
+                tab.className = "tab";
+                if (index === 0) {
+                    tab.classList.add("active");
+                }
+                tab.textContent = perspectives[key];
+                tab.setAttribute("data-tab", key);
+                tabsContainer.appendChild(tab);
+            });
+
+            document.querySelectorAll(".tab").forEach((tab) => {
+                tab.addEventListener("click", function () {
+                    document
+                        .querySelectorAll(".tab")
+                        .forEach((t) => t.classList.remove("active"));
+                    this.classList.add("active");
+                    displayMessagesForTab(this.getAttribute("data-tab"));
+                });
+            });
+        }
+
+        // Fetch messages for a specific perspective
+        function fetchPerspectives(userInput) {
+            initialUserInput = userInput;
+            const spinner = document.getElementById("loading-spinner");
+            spinner.style.display = "flex";
+
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user_input: userInput })
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    spinner.style.display = "none";
+                    console.log("Backend Response:", data);
+                    if (data.perspectives) {
+                        perspectives = data.perspectives;
+                        displayPerspectives();
+                    } else {
+                        console.error("No perspectives found in response:", data);
+                    }
+                })
+                .catch((error) => {
+                    spinner.style.display = "none";
+                    console.error("Error fetching perspectives:", error);
+                });
+        }
+
+        // Send user input to the backend
+        document
+            .getElementById("send-button")
+            .addEventListener("click", () => {
+                const message = document.getElementById("user-input").value.trim();
+                if (!message) return;
+
+                if (Object.keys(perspectives).length === 0) {
+                    document.getElementById("subheading").textContent =
+                        "Step 2: Select 3 perspectives";
+                    fetchPerspectives(message);
+                } else {
+                    sendMessage();
+                }
+            });
+
+        // Allow sending messages with Enter key
+        document
+            .getElementById("user-input")
+            .addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    document.getElementById("send-button").click();
+                }
+            });
+
+        // Display messages for the selected tab
+        function displayMessagesForTab(tab) {
+            const chatMessages = document.getElementById("chat-messages");
+            chatMessages.innerHTML = "";
+
+            if (
+                conversationHistory &&
+                conversationHistory.conversations &&
+                conversationHistory.conversations[tab]
+            ) {
+                conversationHistory.conversations[tab].forEach((message) => {
+                    // Create container for the user message (right-aligned)
+                    const userDiv = document.createElement("div");
+                    userDiv.className = "user-message";
+                    userDiv.innerHTML =
+                        '<p style="text-align: right;"><strong>You:</strong> ' +
+                        message.user +
+                        "</p>";
+                    chatMessages.appendChild(userDiv);
+
+                    // Create container for the AI response (left-aligned)
+                    if (message.ai) {
+                        const aiDiv = document.createElement("div");
+                        aiDiv.className = "ai-message";
+                        aiDiv.innerHTML =
+                            '<p style="text-align: left;"><strong>' +
+                            perspectives[tab] +
+                            ":</strong> " +
+                            message.ai +
+                            "</p>";
+                        chatMessages.appendChild(aiDiv);
+                    }
+                });
+            }
+        }
+
+        // Global variable to store conversation history
+        let conversationHistory = {};
+
+        // Update chat interface and store conversation history
+        function updateChatInterface(data) {
+            conversationHistory = data;
+            const chatMessages = document.getElementById("chat-messages");
+            chatMessages.innerHTML = "";
+            const activeTab = document.querySelector(".tab.active");
+            const currentTab = activeTab
+                ? activeTab.getAttribute("data-tab")
+                : "all";
+            displayMessagesForTab(currentTab);
+        }
+
+        // Send follow-up message
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value.trim();
+            if (!userInput) return;
+
+            const activeTab = document.querySelector(".tab.active");
+            const currentTab = activeTab
+                ? activeTab.getAttribute("data-tab")
+                : "all";
+
+            const spinner = document.getElementById("loading-spinner");
+            spinner.innerHTML =
+                '<span class="spinner-icon"></span> Loading follow-up response...';
+            spinner.style.display = "flex";
+
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_input: userInput,
+                    tab: currentTab,
+                    selected_perspectives: selectedPerspectives
+                })
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    spinner.style.display = "none";
+                    console.log("New Message Response:", data);
+                    updateChatInterface(data);
+                    document.getElementById("user-input").value = "";
+                })
+                .catch((error) => {
+                    spinner.style.display = "none";
+                    console.error("Error sending message:", error);
+                });
+        }
     </script>
 </body>
+
 </html>
