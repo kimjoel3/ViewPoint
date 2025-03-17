@@ -155,14 +155,16 @@
         .input-container {
             position: fixed;
             bottom: 20px;
-            left: 320px;
-            right: 20px;
+            left: 50%; /* Move to the center of the page */
+            transform: translateX(-50%); /* Shift it back by half its width */
             display: flex;
             align-items: center;
             background-color: #fff;
             border-radius: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 10px 20px;
+            width: 75%; /* Adjust width as needed */
+            max-width: 1200px; /* Prevent it from becoming too wide on large screens */
         }
 
         .input-container input {
