@@ -8,7 +8,9 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            /* Added flex-direction: column here */
             display: flex;
+            flex-direction: column;
             height: 100vh;
             background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
             background-size: cover;
@@ -71,6 +73,11 @@
             flex-direction: column;
             padding: 20px;
             background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
+        }
+
+        /* Hide the original h1 so our dynamic header is used */
+        .content h1 {
+            display: none;
         }
 
         #chat-container {
@@ -172,13 +179,19 @@
     </style>
 </head>
 <body>
+    <!-- New header block -->
+    <div id="header" style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+        <div style="font-size: 36px; font-weight: bold;">Viewpoint</div>
+        <div id="subheading" style="font-size: 18px; padding-top: 10px;">Describe your situation</div>
+    </div>
+
     <div class="content">
         <h1>Select 3 Perspectives</h1>
         <div id="loading-spinner">
             <span class="spinner-icon"></span> Loading perspectives...
         </div>
         <div class="perspective-list" id="perspective-list"></div>
-        <button id="confirm-selection" style="margin-top: 20px; padding: 10px 20px; font-size: 16px;">Confirm Selection</button>
+        <button id="confirm-selection" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; font-weight: bold;">Confirm Selection</button>
         
         <div id="chat-container" style="display: none;">
             <div id="tabs"></div>
@@ -279,6 +292,8 @@ function confirmPerspectivesAndInitializeChat() {
         
         // Now show the chat interface
         document.getElementById("chat-container").style.display = "block";
+        // Update header text to indicate follow-up messaging
+        document.getElementById("subheading").textContent = "send follow ups to specific perspectives";
         
         // Create tabs for the selected perspectives
         createChatTabs();
@@ -366,6 +381,8 @@ document.getElementById("send-button").addEventListener("click", () => {
 
     // If we haven't initialized the chat yet, fetch perspectives
     if (Object.keys(perspectives).length === 0) {
+        // Update header to prompt perspective selection
+        document.getElementById("subheading").textContent = "select 3 perspectives";
         fetchPerspectives(message);
     } else {
         // Otherwise, send the new message
