@@ -294,29 +294,25 @@ document.getElementById("confirm-selection").addEventListener("click", () => {
 
 // Send selected perspectives to backend and initialize chat
 function confirmPerspectivesAndInitializeChat() {
-    // spinner now says loading responses instead of loading perspectives AFTER perspectives confirmed
     var spinner = document.getElementById("loading-spinner");
-    console.log('koby here')
 
     spinner.innerHTML = '<span class="spinner-icon"></span> Loading responses...';
-    spinner.style.display = "flex"; // Ensure it's visible and aligned
+    spinner.style.display = "flex"; 
 
-    
     fetch("/get_response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-            user_input: initialUserInput, // Use the stored initial input
-            selected_perspectives: selectedPerspectives // Send the selected perspectives
+            user_input: initialUserInput,
+            selected_perspectives: selectedPerspectives
         })
     })
     .then(response => response.json())
     .then(data => {
-        // remove spinner once data is received
+        // remove spinner when response is loaded
         spinner.style.display = "none";
         console.log("Perspective Confirmation Response:", data);
         
-        // Now show the chat interface
         document.getElementById("chat-container").style.display = "block";
         // Update header text to indicate follow-up messaging
         document.getElementById("subheading").textContent = "Step 3: Follow-up with specific perspectives";
@@ -331,6 +327,11 @@ function confirmPerspectivesAndInitializeChat() {
         document.querySelector('h1').style.display = 'none';
         document.getElementById('perspective-list').style.display = 'none';
         document.getElementById('confirm-selection').style.display = 'none';
+
+        // update user input box to prompt with instructions for followup
+        document.getElementById("user-input").placeholder = "Enter follow-up message for a specific perspective";
+        // clear previous user entry once ready for follow-up stage
+        document.getElementById("user-input").value = "";
     })
     .catch(error => {
         spinner.style.display = "none";
