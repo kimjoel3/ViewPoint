@@ -79,19 +79,18 @@
             background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
         }
 
-        /* Hide the original h1 so our dynamic header is used */
         .content h1 {
             display: none;
         }
 
         #chat-container {
-            margin: 20px auto; /* Centers the container horizontally and adds vertical spacing */
+            margin: 20px auto; 
             width: 100%;
-            max-width: 900px;
+            max-width: 1150px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+            overflow-y: auto; /* scrolling if content overflows */
             display: flex;
             flex-direction: column;
             max-height: 60vh;
@@ -341,39 +340,35 @@ function confirmPerspectivesAndInitializeChat() {
     });
 }
 
-// Create tabs for the chat interface
+// updated to remove the 'all perspectives' tab
 function createChatTabs() {
     const tabsContainer = document.getElementById("tabs");
     tabsContainer.innerHTML = "";
     
-    // Add "All" tab first
-    const allTab = document.createElement("div");
-    allTab.className = "tab active";
-    allTab.textContent = "All Perspectives";
-    allTab.setAttribute("data-tab", "all");
-    tabsContainer.appendChild(allTab);
-    
-    // Add individual perspective tabs
-    selectedPerspectives.forEach(key => {
+    // Instead of adding an "All" tab, loop over the selected perspectives
+    selectedPerspectives.forEach((key, index) => {
         const tab = document.createElement("div");
         tab.className = "tab";
+        // Make the first tab active by default
+        if (index === 0) {
+            tab.classList.add("active");
+        }
         tab.textContent = perspectives[key];
         tab.setAttribute("data-tab", key);
         tabsContainer.appendChild(tab);
     });
     
-    // Add tab click events
+    // Add click events to each tab
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            
-            // Just display the existing messages for the selected tab
-            // No need to make an API call just for tab switching
+            // Display messages only for the selected perspective
             displayMessagesForTab(this.getAttribute('data-tab'));
         });
     });
 }
+
 
 // Fetch messages for a specific perspective
 function fetchPerspectives(userInput) {
@@ -431,35 +426,21 @@ function displayMessagesForTab(tab) {
     const chatMessages = document.getElementById("chat-messages");
     chatMessages.innerHTML = "";
     
-    // If we have conversation data, filter and display accordingly
     if (conversationHistory && conversationHistory.conversations) {
-        if (tab === 'all') {
-            // Display messages from all selected perspectives
-            if (conversationHistory.conversations.all) {
-                conversationHistory.conversations.all.forEach(message => {
-                    const messageDiv = document.createElement("div");
-                    messageDiv.className = "message";
-                    messageDiv.innerHTML = 
-                        `<p><strong>${perspectives[message.perspective]}:</strong></p>
-                        <p>${message.ai}</p>`;
-                    chatMessages.appendChild(messageDiv);
-                });
-            }
-        } else {
-            // Display messages only from the selected perspective
-            if (conversationHistory.conversations[tab]) {
-                conversationHistory.conversations[tab].forEach(message => {
-                    const messageDiv = document.createElement("div");
-                    messageDiv.className = "message";
-                    messageDiv.innerHTML = 
-                        `<p><strong>${perspectives[tab]}:</strong></p>
-                        <p>${message.ai}</p>`;
-                    chatMessages.appendChild(messageDiv);
-                });
-            }
+        // Display messages only for the selected perspective (tab)
+        if (conversationHistory.conversations[tab]) {
+            conversationHistory.conversations[tab].forEach(message => {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "message";
+                messageDiv.innerHTML = 
+                    `<p><strong>${perspectives[tab]}:</strong></p>
+                     <p>${message.ai}</p>`;
+                chatMessages.appendChild(messageDiv);
+            });
         }
     }
 }
+
 
 // Let's keep track of conversation history globally
 let conversationHistory = {};
