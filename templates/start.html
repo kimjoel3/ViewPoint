@@ -24,17 +24,21 @@
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Space between spinner and text */
+            font-size: 18px;
+            font-weight: bold;
+            color: #7D4F9E; /* Match the theme color */
         }
 
         .spinner-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ccc;
-            border-top: 2px solid #7D4F9E;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ccc;
+            border-top: 3px solid #7D4F9E;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 5px;
         }
 
         @keyframes spin {
@@ -176,22 +180,38 @@
             font-size: 20px;
             color: #6c63ff;
         }
+        #confirm-selection {
+            display: block;
+            margin: 20px auto; /* center button */
+            padding: 16px 32px; 
+            font-size: 18px;
+            font-weight: bold;
+            background: #e3d9ee; /* light purple bg */
+            color: #7D4F9E; /* dark purple text */
+            border: none;
+            border-radius: 20px; /*round corners */
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            width: 25%; 
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body>
     <!-- New header block -->
-    <div id="header" style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+    <div id="header" style="text-align: center; margin-top: 40px; margin-bottom: 0px;">
         <div style="font-size: 36px; font-weight: bold;">Viewpoint</div>
-        <div id="subheading" style="font-size: 18px; padding-top: 10px;">Describe your situation</div>
+        <div id="subheading" style="font-size: 18px; padding-top: 20px;"> Step 1: Describe your situation</div>
     </div>
 
     <div class="content">
-        <h1>Select 3 Perspectives</h1>
+        <h1>Step 2: Select 3 Perspectives</h1>
         <div id="loading-spinner">
             <span class="spinner-icon"></span> Loading perspectives...
         </div>
         <div class="perspective-list" id="perspective-list"></div>
-        <button id="confirm-selection" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; font-weight: bold;">Confirm Selection</button>
+        <button id="confirm-selection">Confirm Selection</button> 
         
         <div id="chat-container" style="display: none;">
             <div id="tabs"></div>
@@ -265,6 +285,7 @@ document.getElementById("confirm-selection").addEventListener("click", () => {
         // Send selected perspectives to backend and initialize chat
         confirmPerspectivesAndInitializeChat();
     } else {
+        // force user to select 3
         alert("Please select exactly 3 perspectives.");
     }
 });
@@ -273,8 +294,11 @@ document.getElementById("confirm-selection").addEventListener("click", () => {
 function confirmPerspectivesAndInitializeChat() {
     // spinner now says loading responses instead of loading perspectives AFTER perspectives confirmed
     var spinner = document.getElementById("loading-spinner");
+    console.log('koby here')
+
     spinner.innerHTML = '<span class="spinner-icon"></span> Loading responses...';
-    spinner.style.display = "block";
+    spinner.style.display = "flex"; // Ensure it's visible and aligned
+
     
     fetch("/get_response", {
         method: "POST",
@@ -293,7 +317,7 @@ function confirmPerspectivesAndInitializeChat() {
         // Now show the chat interface
         document.getElementById("chat-container").style.display = "block";
         // Update header text to indicate follow-up messaging
-        document.getElementById("subheading").textContent = "send follow ups to specific perspectives";
+        document.getElementById("subheading").textContent = "Step 3: Follow-up with specific perspectives";
         
         // Create tabs for the selected perspectives
         createChatTabs();
@@ -350,7 +374,7 @@ function createChatTabs() {
 function fetchPerspectives(userInput) {
     initialUserInput = userInput; // Store the initial user input for later use
     const spinner = document.getElementById("loading-spinner");
-    spinner.style.display = "block";  // show loading spinner before prompts load
+    spinner.style.display = "flex";  // show loading spinner before prompts load
 
     fetch("/get_response", {
         method: "POST",
@@ -382,7 +406,7 @@ document.getElementById("send-button").addEventListener("click", () => {
     // If we haven't initialized the chat yet, fetch perspectives
     if (Object.keys(perspectives).length === 0) {
         // Update header to prompt perspective selection
-        document.getElementById("subheading").textContent = "select 3 perspectives";
+        document.getElementById("subheading").textContent = "Step 2: Select 3 perspectives";
         fetchPerspectives(message);
     } else {
         // Otherwise, send the new message
