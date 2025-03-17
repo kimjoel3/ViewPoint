@@ -488,6 +488,11 @@ function sendMessage() {
     const activeTab = document.querySelector('.tab.active');
     const currentTab = activeTab ? activeTab.getAttribute('data-tab') : 'all';
     
+    // show spinner while waiting for followup
+    const spinner = document.getElementById("loading-spinner");
+    spinner.innerHTML = '<span class="spinner-icon"></span> Loading follow-up response...';
+    spinner.style.display = "flex";
+
     fetch("/get_response", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -499,11 +504,15 @@ function sendMessage() {
     })
     .then(response => response.json())
     .then(data => {
+        spinner.style.display = "none"; // when response returns remove spinner
         console.log("New Message Response:", data);
         updateChatInterface(data);
         document.getElementById("user-input").value = "";
     })
-    .catch(error => console.error("Error sending message:", error));
+    .catch(error => {
+        spinner.style.display = "none"; 
+        console.error("Error sending message:", error);
+    });
 }
     </script>
 </body>
