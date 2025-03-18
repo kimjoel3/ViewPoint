@@ -203,7 +203,7 @@ def get_response():
         for num_key in active_perspectives:
             print(f"Generating response for perspective {num_key}")
             chat_history = [
-                {"role": "system", "content": f"Continue responding as {perspectives[num_key]}."}
+                {"role": "system", "content": f"Continue responding as. {perspectives[num_key]}."}
             ]
 
             for message in session_data.get(num_key, []):

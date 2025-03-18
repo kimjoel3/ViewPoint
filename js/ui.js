@@ -42,7 +42,7 @@ function displayMessagesForTab(tab) {
             // Create container for the user message (right-aligned)
             const userDiv = document.createElement("div");
             userDiv.className = "user-message";
-            userDiv.innerHTML = '<p style="text-align: right;"><strong>You:</strong> ' + message.user + "</p>";
+            userDiv.innerHTML = '<p style="text-align: left;"><strong>You:</strong> ' + message.user + "</p>";
             chatMessages.appendChild(userDiv);
 
             // Create container for the AI response (left-aligned)
