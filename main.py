@@ -1,29 +1,37 @@
 from openai import OpenAI
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, redirect
 import os
 from dotenv import load_dotenv
 import uuid
 
+# Load environment variables
 load_dotenv()
 
+# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-app = Flask(__name__)
+# Initialize Flask app with proper static and template folders
+app = Flask(__name__, 
+    static_url_path='',  # Empty string is important for serving static files
+    static_folder='.',   # Serves files from current directory
+    template_folder='pages')
 
-# Unique session ID
+# Generate unique session ID
 session_id = str(uuid.uuid4())
 print("Session ID:", session_id)
 
-# Store user conversations per session
+# Storage for user conversations and debate histories
 conversations = {}
+debate_histories = {}
 
-# Load system prompt
+# Load system prompt for perspectives
 with open("perspectivesPrompt.txt", "r") as file:
     prompt_context = file.read().strip()
 
+# AI Functions
 def generate_perspectives(user_input):
     """Generate different perspectives based on user input."""
-    print("generate perspectives", user_input)
+    print("Generate perspectives:", user_input)
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -61,27 +69,140 @@ def first_chat(user_input, perspectives):
 
     return responses
 
-
+# Routes
 @app.route('/')
-def login_page():
-    return render_template('start.html')  # Render the HTML template
+def index():
+    """Redirect to start page"""
+    return redirect('/start')
+
+@app.route('/start')
+def start():
+    """Render the start page"""
+    return render_template('start.html')
 
 @app.route('/home')
-def index_page():
-    return render_template('home.html') # Render the HTML template
+def home():
+    """Render the main application page"""
+    return render_template('home.html')
 
+@app.route('/get_response', methods=['POST'])
+def get_response():
+    """
+    API endpoint to handle various request types:
+    1. Initial user input - returns perspectives
+    2. Perspective selection - returns initial responses
+    3. Follow-up messages - returns updated conversation
+    """
+    global conversations
+    data = request.json
+    user_input = data.get('user_input', "").strip()
+    selected_tab = data.get('tab', "all") 
+    selected_perspectives = data.get('selected_perspectives', [])
 
+    if not user_input:
+        return jsonify({"error": "No input provided"}), 400
 
-# Add these endpoints to your Flask application
+    if session_id not in conversations:
+        conversations[session_id] = {
+            "all": [],
+            "perspectives": {},
+            "selected_perspectives": []
+        }
 
-# Add these endpoints to your Flask application
-# Add these endpoints to your Flask application
+    session_data = conversations[session_id]
 
-# Add this dictionary at the top of your Flask application to store debate histories
-# alongside your existing conversations dictionary
+    # Initial perspective generation
+    if not session_data["perspectives"]:
+        perspectives = generate_perspectives(user_input)
+        print("PERSPECTIVES:", perspectives)
+        session_data["perspectives"] = perspectives
 
-# Store debate histories per session
-debate_histories = {}
+        return jsonify({
+            "perspectives": perspectives
+        })
+    
+    # Handle perspective confirmation and first chat
+    elif selected_perspectives and not session_data["selected_perspectives"]:
+        print("CONFIRMING PERSPECTIVES:", selected_perspectives)
+        session_data["selected_perspectives"] = selected_perspectives
+        
+        # Generate the first chat responses for selected perspectives
+        perspectives = session_data["perspectives"]
+        responses = first_chat(user_input, {k: perspectives[k] for k in selected_perspectives})
+        
+        # Store the initial conversations
+        conversations_data = {}
+        for num_key in selected_perspectives:
+            if num_key not in session_data:
+                session_data[num_key] = []
+            session_data[num_key].append({"user": user_input, "ai": responses[num_key]})
+            session_data["all"].append({"user": user_input, "ai": responses[num_key], "perspective": num_key})
+            
+            # Format for the expected return structure
+            if num_key not in conversations_data:
+                conversations_data[num_key] = []
+            conversations_data[num_key].append({"user": user_input, "ai": responses[num_key]})
+        
+        return jsonify({
+            "conversations": conversations_data
+        })
+    
+    # Handle follow-up conversations
+    else:
+        print("FOLLOW UP to tab:", selected_tab)
+        perspectives = session_data["perspectives"]
+        responses = {}
+
+        if selected_tab == "all":
+            active_perspectives = session_data["selected_perspectives"] or list(perspectives.keys())
+        else:
+            active_perspectives = [selected_tab]
+
+        print("Active perspectives for response:", active_perspectives)
+
+        # Format conversations data for return
+        conversations_data = {}
+        for perspective_key in session_data["selected_perspectives"]:
+            if perspective_key in session_data:
+                conversations_data[perspective_key] = session_data[perspective_key]
+            else:
+                conversations_data[perspective_key] = []
+
+        for num_key in active_perspectives:
+            print(f"Generating response for perspective {num_key}")
+            chat_history = [
+                {"role": "system", "content": f"Continue responding as {perspectives[num_key]}."}
+            ]
+
+            for message in session_data.get(num_key, []):
+                chat_history.append({"role": "user", "content": message["user"]})
+                chat_history.append({"role": "assistant", "content": message["ai"]})
+
+            chat_history.append({"role": "user", "content": user_input})
+
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=chat_history,
+                temperature=0.7,
+                max_tokens=200
+            )
+
+            ai_response = response.choices[0].message.content.strip()
+            responses[num_key] = ai_response
+
+            if num_key not in session_data:
+                session_data[num_key] = []
+            session_data[num_key].append({"user": user_input, "ai": ai_response})
+            session_data["all"].append({"user": user_input, "ai": ai_response, "perspective": num_key})
+            
+            # Update conversations data for this perspective
+            if num_key not in conversations_data:
+                conversations_data[num_key] = []
+            conversations_data[num_key].append({"user": user_input, "ai": ai_response})
+        
+        return jsonify({
+            "conversations": conversations_data
+        })
 
 @app.route('/get_debate_response', methods=['POST'])
 def get_debate_response():
@@ -143,7 +264,7 @@ def get_debate_response():
             
             Provide your perspective on the topic, addressing or responding to what the other participant said.
             Make your response thoughtful, substantive, and authentic to your perspective's viewpoint.
-            Keep your response to 3-4 sentences for readability.
+            Keep your response to 1-2 sentences for readability.
             """
         else:
             instruction = f"""
@@ -151,7 +272,7 @@ def get_debate_response():
             
             Provide your initial perspective on this topic. You'll be the first to speak.
             Make your response thoughtful, substantive, and authentic to your perspective's viewpoint.
-            Keep your response to 3-4 sentences for readability.
+            Keep your response to 1-2 sentences for readability.
             """
         
         messages.append({"role": "user", "content": instruction})
@@ -263,107 +384,6 @@ def get_debate_counterpoint():
     except Exception as e:
         print(f"Error generating debate counterpoint: {str(e)}")
         return jsonify({"error": "Failed to generate counterpoint"}), 500
-
-
-@app.route('/get_response', methods=['POST'])
-def get_response():
-    global conversations
-    data = request.json
-    user_input = data.get('user_input', "").strip()
-    selected_tab = data.get('tab', "all") 
-    selected_perspectives = data.get('selected_perspectives', [])  # Get selected perspectives if provided
-
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
-
-    if session_id not in conversations:
-        conversations[session_id] = {
-            "all": [],
-            "perspectives": {},
-            "selected_perspectives": []
-        }
-
-    session_data = conversations[session_id]
-
-    # Initial perspective generation
-    if not session_data["perspectives"]:
-        perspectives = generate_perspectives(user_input)
-        print("PERSPECTIVES:", perspectives)
-        session_data["perspectives"] = perspectives
-
-        return jsonify({
-            "perspectives": perspectives
-        })
-    
-    # Handle perspective confirmation and first chat (detecting by selected_perspectives in request)
-    elif selected_perspectives and not session_data["selected_perspectives"]:
-        print("CONFIRMING PERSPECTIVES:", selected_perspectives)
-        session_data["selected_perspectives"] = selected_perspectives
-        
-        # Now generate the first chat responses for selected perspectives
-        perspectives = session_data["perspectives"]
-        responses = first_chat(user_input, {k: perspectives[k] for k in selected_perspectives})
-        
-        # Store the initial conversations
-        for num_key in selected_perspectives:
-            if num_key not in session_data:
-                session_data[num_key] = []
-            session_data[num_key].append({"user": user_input, "ai": responses[num_key]})
-            session_data["all"].append({"user": user_input, "ai": responses[num_key], "perspective": num_key})
-        
-        return jsonify({
-            "responses": responses,
-            "conversations": session_data,
-            "perspectives": perspectives
-        })
-    
-    # Handle follow-up conversations
-    else:
-        print("FOLLOW UP")
-        perspectives = session_data["perspectives"]
-        responses = {}
-
-        if selected_tab == "all":
-            active_perspectives = session_data["selected_perspectives"] or list(perspectives.keys())
-        else:
-            active_perspectives = [selected_tab]
-
-        print("Active perspectives for response:", active_perspectives)
-
-        for num_key in active_perspectives:
-            print(f"Generating response for perspective {num_key}")
-            chat_history = [
-                {"role": "system", "content": f"Continue responding as {perspectives[num_key]}."}
-            ]
-
-            for message in session_data.get(num_key, []):
-                chat_history.append({"role": "user", "content": message["user"]})
-                chat_history.append({"role": "assistant", "content": message["ai"]})
-
-            chat_history.append({"role": "user", "content": user_input})
-
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=chat_history,
-                temperature=0.7,
-                max_tokens=200
-            )
-
-            ai_response = response.choices[0].message.content.strip()
-            responses[num_key] = ai_response
-
-            if num_key not in session_data:
-                session_data[num_key] = []
-            session_data[num_key].append({"user": user_input, "ai": ai_response})
-            session_data["all"].append({"user": user_input, "ai": ai_response, "perspective": num_key})
-        
-        return jsonify({
-            "responses": responses,
-            "conversations": session_data,
-            "perspectives": perspectives
-        })
-    
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

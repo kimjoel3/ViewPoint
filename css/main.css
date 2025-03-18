@@ -1,0 +1,92 @@
+/* Main styles for ViewPoint application */
+
+/* Base styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
+    background-size: cover;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: #333;
+    margin-top: 0;
+}
+
+/* Header styles */
+#header {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 0px;
+}
+
+#header .logo {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+#subheading {
+    font-size: 18px;
+    padding-top: 20px;
+}
+
+/* Loading spinner */
+#loading-spinner {
+    display: none;
+    position: fixed;
+    top: 85%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #7d4f9e;
+}
+
+.spinner-icon {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #ccc;
+    border-top: 3px solid #7d4f9e;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Color variables */
+:root {
+    --primary: #9a6abf;
+    --primary-dark: #7d4f9e;
+    --primary-light: #e3d9ee;
+    --secondary: #e3eeff;
+    --text-dark: #333;
+    --text-light: #fff;
+    --border-color: #ddd;
+    --background-light: #fafafa;
+}
+
+/* Responsive media queries */
+@media (max-width: 768px) {
+    #debate-layout {
+        flex-direction: column;
+    }
+    
+    .input-container {
+        width: 90%;
+    }
+    
+    #confirm-selection, #start-debate-btn {
+        width: 80%;
+    }
+}

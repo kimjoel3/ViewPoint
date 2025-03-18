@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ViewPoint</title>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/debate-components.css">
+
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="header">
+        <div class="logo">Viewpoint</div>
+        <div id="subheading">
+            Step 1: Describe your situation
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <h1>Step 2: Select 3 Perspectives</h1>
+        <div id="loading-spinner">
+            <span class="spinner-icon"></span> Loading perspectives...
+        </div>
+        <div class="perspective-list" id="perspective-list"></div>
+        <button id="confirm-selection">Confirm Selection</button>
+
+        <div id="chat-container">
+            <div id="tabs"></div>
+            <div id="chat-messages"></div>
+        </div>
+    </div>
+
+    <!-- Input Container -->
+    <div class="input-container">
+        <input type="text" id="user-input" placeholder="Ask me anything about your situation" />
+        <button id="send-button">➤</button>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    
+    <script src="js/debate.js"></script>
+    <script src="js/perspectives.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

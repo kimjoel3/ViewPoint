@@ -1,0 +1,190 @@
+/* Component styles for ViewPoint application */
+
+/* Chat container */
+#chat-container {
+    margin: 20px auto;
+    width: 100%;
+    max-width: 1150px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 60vh;
+    display: none;
+}
+
+#tabs {
+    display: flex;
+    background: var(--primary);
+    padding: 10px;
+    border-radius: 15px 15px 0 0;
+    gap: 5px;
+    justify-content: space-around;
+}
+
+.tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    border-radius: 20px 20px 0 0;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.tab.active {
+    background: var(--primary-dark);
+}
+
+#chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    border-bottom: 1px solid #eee;
+    background: var(--background-light);
+    max-height: calc(60vh - 50px);
+}
+
+/* Perspective selection */
+.perspective-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.perspective-item {
+    padding: 10px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    background: white;
+    transition: background 0.3s, border 0.3s;
+}
+
+.perspective-item.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary-dark);
+}
+
+/* Confirmation button */
+#confirm-selection {
+    display: block;
+    margin: 20px auto;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: bold;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    width: 25%;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+#confirm-selection:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat messages */
+.user-message {
+    text-align: right;
+    margin: 10px 0;
+    padding: 5px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.ai-message {
+    text-align: left;
+    margin: 10px 0;
+    padding: 5px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Debate components */
+#debate-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: slideIn 0.5s ease-out;
+    transition: all 0.3s ease;
+}
+
+#debate-container:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.debate-header {
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+#debate-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background: #f9f9f9;
+    height: 350px;
+    max-height: 350px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) #f1e6fb;
+}
+
+.debate-input-container {
+    display: flex;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+}
+
+#debate-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-right: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#debate-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(154, 106, 191, 0.2);
+}
+
+.debate-continue-btn, 
+.debate-newtopic-btn {
+    padding: 10px 15px;
+    background: #f1e6fb;
+    color: #333;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.debate-continue-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

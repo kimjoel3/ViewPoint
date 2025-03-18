@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViewPoint - Start</title>
+    <!-- Custom CSS that matches our main app style -->
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #fdfbfb, #f3e7e9, #e3eeff);
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .logo {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #7d4f9e;
+        }
+        
+        .logo-icon {
+            display: block;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 22px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        
+        .start-button {
+            display: inline-block;
+            padding: 15px 50px;
+            background-color: #9a6abf;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .start-button:hover {
+            background-color: #7d4f9e;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(122, 79, 158, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .animated {
+            animation: pulse 2s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 0 20px;
+            }
+            
+            .logo {
+                font-size: 40px;
+            }
+            
+            .subtitle {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-icon">✧✦</div>
+        <div class="logo">ViewPoint</div>
+        <p class="subtitle">Explore multiple perspectives on any situation</p>
+        
+        <a href="/home" class="start-button animated">Start Your Journey</a>
+    </div>
+</body>
+</html>
