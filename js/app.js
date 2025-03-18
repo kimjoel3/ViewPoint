@@ -1,5 +1,6 @@
 // Main application initialization
 document.addEventListener('DOMContentLoaded', function() {
+
     // Global variables
     window.initialUserInput = "";
     
@@ -138,4 +139,88 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial responsive layout setup
     handleResponsiveLayout();
+});
+
+function resetApplication() {
+    // Reset global variables
+    window.initialUserInput = "";
+    window.selectedPerspectives = [];
+    window.perspectives = {};
+    window.conversationHistory = {};
+    
+    // Show the initial UI elements
+    document.getElementById("subheading").textContent = "Step 1: Describe your situation";
+    document.querySelector(".input-container").style.display = "flex";
+    document.querySelector("h1").style.display = "block";
+    document.getElementById("perspective-list").style.display = "none";
+    document.getElementById("confirm-selection").style.display = "none";
+    
+    // Hide chat elements
+    const chatContainer = document.getElementById("chat-container");
+    if (chatContainer) {
+        chatContainer.style.display = "none";
+    }
+    
+    // Hide debate elements if present
+    const debateLayout = document.getElementById("debate-layout");
+    if (debateLayout) {
+        debateLayout.remove();
+    }
+    
+    // Remove any debate selection UI
+    const debateSelection = document.getElementById("debate-selection");
+    if (debateSelection) {
+        debateSelection.remove();
+    }
+    
+    // Remove debate button
+    const debateButton = document.getElementById("start-debate-btn");
+    if (debateButton) {
+        debateButton.remove();
+    }
+    
+    // Clear messages
+    const chatMessages = document.getElementById("chat-messages");
+    if (chatMessages) {
+        chatMessages.innerHTML = "";
+    }
+    
+    // Clear tabs
+    const tabs = document.getElementById("tabs");
+    if (tabs) {
+        tabs.innerHTML = "";
+    }
+    
+    // Reset perspective list
+    const perspectiveList = document.getElementById("perspective-list");
+    if (perspectiveList) {
+        perspectiveList.innerHTML = "";
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Call the clear_session endpoint to reset server-side state
+    fetch('/clear_session')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Session cleared:", data);
+            
+            // Also reset all client-side state
+            window.perspectives = {};
+            window.selectedPerspectives = [];
+            window.conversationHistory = {};
+            
+            // Reset UI to initial state
+            document.getElementById("subheading").textContent = "Step 1: Describe your situation";
+            document.querySelector(".input-container").style.display = "flex";
+            
+            const perspectiveList = document.getElementById("perspective-list");
+            if (perspectiveList) perspectiveList.innerHTML = "";
+            
+            const chatContainer = document.getElementById("chat-container");
+            if (chatContainer) chatContainer.style.display = "none";
+        })
+        .catch(error => {
+            console.error("Failed to clear session:", error);
+        });
 });

@@ -39,14 +39,7 @@
     background: var(--primary-dark);
 }
 
-#chat-messages {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    border-bottom: 1px solid #eee;
-    background: var(--background-light);
-    max-height: calc(60vh - 50px);
-}
+
 
 /* Perspective selection */
 .perspective-list {
@@ -96,20 +89,7 @@
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Chat messages */
-.user-message {
-    text-align: right;
-    margin: 10px 0;
-    padding: 5px;
-    animation: fadeIn 0.3s ease-out;
-}
 
-.ai-message {
-    text-align: left;
-    margin: 10px 0;
-    padding: 5px;
-    animation: fadeIn 0.3s ease-out;
-}
 
 /* Debate components */
 #debate-container {
@@ -128,32 +108,8 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
-.debate-header {
-    padding: 15px;
-    background: var(--primary);
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
 
-#debate-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f9f9f9;
-    height: 350px;
-    max-height: 350px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary) #f1e6fb;
-}
 
-.debate-input-container {
-    display: flex;
-    padding: 15px;
-    background: white;
-    border-top: 1px solid #eee;
-}
 
 #debate-input {
     flex: 1;
@@ -187,4 +143,47 @@
     opacity: 0.9;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Make headers consistent */
+.debate-header, #tabs {
+    padding: 15px;
+    background: #9a6abf;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Make message containers the same height */
+#chat-messages, #debate-messages {
+    height: 350px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f9f9f9;
+}
+
+/* Consistent message styling */
+.user-message p, .ai-message p {
+    display: inline-block;
+    padding: 12px;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
+.user-message p {
+    background: #e3eeff;
+}
+
+.ai-message p {
+    background: #f1e6fb;
+}
+
+/* Input containers */
+.chat-input-container, .debate-input-container {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
 }

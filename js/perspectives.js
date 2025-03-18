@@ -72,36 +72,40 @@ function confirmPerspectivesAndInitializeChat() {
         document.querySelector(".input-container").style.display = "none";
         
         API.getInitialResponses(initialUserInput, selectedPerspectives)
-            .then(data => {
-                document.getElementById("chat-container").style.display = "block";
-                document.getElementById("subheading").textContent = "Step 3: Follow-up with specific perspectives";
-                
-                createChatTabs();
-                updateChatInterface(data);
-                
-                document.querySelector("h1").style.display = "none";
-                document.getElementById("perspective-list").style.display = "none";
-                document.getElementById("confirm-selection").style.display = "none";
-                
-                // Add chat input container
-                addChatInputContainer();
-                
-                // Explicitly initialize the debate feature after chat setup is complete
-                setTimeout(function() {
-                    initiateDebateFeature();
-                    
-                    // Make sure the debate button is visible
-                    const debateButton = document.getElementById("start-debate-btn");
-                    if (debateButton) {
-                        debateButton.style.display = "block";
-                    }
-                }, 100);
-            })
-            .catch((error) => {
-                console.error("Error confirming perspectives:", error);
-                // If there's an error, show the input bar again
-                document.querySelector(".input-container").style.display = "flex";
-            });
+    .then(data => {
+        console.log("Initial responses received:", data);
+        console.log("Conversation data structure:", data.conversations);
+        
+        document.getElementById("chat-container").style.display = "block";
+        document.getElementById("subheading").textContent = "Step 3: Follow-up with specific perspectives";
+        
+        createChatTabs();
+        updateChatInterface(data);
+        
+        document.querySelector("h1").style.display = "none";
+        document.getElementById("perspective-list").style.display = "none";
+        document.getElementById("confirm-selection").style.display = "none";
+        
+        // Add chat input container
+        addChatInputContainer();
+        
+        // Explicitly initialize the debate feature after chat setup is complete
+        setTimeout(function() {
+            initiateDebateFeature();
+            
+            // Make sure the debate button is visible
+            const debateButton = document.getElementById("start-debate-btn");
+            if (debateButton) {
+                debateButton.style.display = "block";
+            }
+        }, 100);
+    })
+    .catch((error) => {
+        console.error("Error confirming perspectives:", error);
+        // If there's an error, show the input bar again
+        document.querySelector(".input-container").style.display = "flex";
+    });
+
     } else {
         alert("Please select exactly 3 perspectives.");
     }

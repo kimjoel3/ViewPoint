@@ -18,7 +18,11 @@ window.scrollToBottom = scrollToBottom;
 function displayMessagesForTab(tab) {
     // Get chat messages container
     const chatMessages = document.getElementById("chat-messages");
+    
     if (!chatMessages) return;
+
+    console.log("Displaying messages for tab:", tab);
+    console.log("Available conversations:", conversationHistory?.conversations);
     
     // Clear existing messages first
     chatMessages.innerHTML = "";
@@ -53,61 +57,65 @@ function displayMessagesForTab(tab) {
     }
 }
 
-// Update chat interface and store conversation history
+// Update chat interface and store conversation history - FIXED VERSION
 function updateChatInterface(data) {
-    console.log("updateChatInterface called", data);
-
     const activeTab = document.querySelector(".tab.active");
     const currentTab = activeTab ? activeTab.getAttribute("data-tab") : selectedPerspectives[0];
-
-    console.log("Current Tab:", currentTab);
-    console.log("Previous conversation count:", conversationHistory?.conversations?.[currentTab]?.length || 0);
-    console.log("New conversation count:", data.conversations?.[currentTab]?.length || 0);
-
-    if (!data.conversations[currentTab]) {
-        console.error("No conversation data received for tab:", currentTab);
+    
+    console.log("Update chat interface with data:", data);
+    console.log("Current active tab:", currentTab);
+    
+    // Initialize conversation history if needed
+    if (!conversationHistory.conversations) conversationHistory.conversations = {};
+    
+    // Ensure we have data in the expected format
+    if (!data || !data.conversations || !data.conversations[currentTab]) {
+        console.error("Invalid data format or missing conversations for current tab:", currentTab);
         return;
     }
-
-    // 🔥 Create a Set to track unique messages (to prevent exact duplicates)
-    const previousMessages = new Set(
-        (conversationHistory.conversations?.[currentTab] || []).map(msg => msg.user + msg.ai)
-    );
-
-    // 🔥 Filter out exact duplicates
-    const newMessages = data.conversations[currentTab].filter(
-        msg => !previousMessages.has(msg.user + msg.ai)
-    );
-
-    // 🔥 Remove duplicate messages from the API response itself
-    const uniqueMessages = [];
-    const seenMessages = new Set();
-    for (const msg of newMessages) {
-        const msgKey = msg.user + msg.ai;
-        if (!seenMessages.has(msgKey)) {
-            seenMessages.add(msgKey);
-            uniqueMessages.push(msg);
-        }
+    
+    // Process data for ALL perspectives
+    if (data.conversations) {
+        // Loop through all perspectives in the data
+        Object.keys(data.conversations).forEach(tabKey => {
+            if (!data.conversations[tabKey] || !Array.isArray(data.conversations[tabKey])) return;
+            
+            // Initialize this tab in conversation history if it doesn't exist
+            if (!conversationHistory.conversations[tabKey]) {
+                conversationHistory.conversations[tabKey] = [];
+            }
+            
+            // Get the latest user input from the incoming data
+            const newMessages = data.conversations[tabKey];
+            
+            // Enhanced duplicate detection - compare timestamps or message indices if available
+            // Otherwise, use a more sophisticated comparison method than simple string concatenation
+            const existingMessages = conversationHistory.conversations[tabKey];
+            
+            for (const newMsg of newMessages) {
+                // Only add if it's not a duplicate - check if this exact pair already exists
+                let isDuplicate = false;
+                
+                for (const existingMsg of existingMessages) {
+                    // Compare both user and AI parts of the message
+                    if (existingMsg.user === newMsg.user && existingMsg.ai === newMsg.ai) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+                
+                if (!isDuplicate) {
+                    console.log("Adding new message for tab", tabKey, ":", newMsg);
+                    existingMessages.push(newMsg);
+                }
+            }
+        });
     }
-
-    console.log("Final unique messages to add:", uniqueMessages);
-
-    if (uniqueMessages.length > 0) {
-        if (!conversationHistory.conversations) conversationHistory.conversations = {};
-        conversationHistory.conversations[currentTab] = [
-            ...(conversationHistory.conversations[currentTab] || []),
-            ...uniqueMessages
-        ];
-
-        displayMessagesForTab(currentTab);
-        scrollToBottom("chat-messages");
-    } else {
-        console.log("No new unique messages to update.");
-    }
+    
+    // Display messages for the current tab
+    displayMessagesForTab(currentTab);
+    scrollToBottom("chat-messages");
 }
-
-
-
 
 // Send message function
 function sendMessage() {
@@ -283,7 +291,6 @@ function setSubheading(text) {
         subheading.textContent = text;
     }
 }
-
 
 // Add this function to ui.js
 function showLoading(message, elementId = null) {

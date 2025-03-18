@@ -1,5 +1,5 @@
 from openai import OpenAI
-from flask import Flask, request, render_template, jsonify, redirect
+from flask import Flask, request, render_template, jsonify, redirect, session
 import os
 from dotenv import load_dotenv
 import uuid
@@ -16,9 +16,8 @@ app = Flask(__name__,
     static_folder='.',   # Serves files from current directory
     template_folder='pages')
 
-# Generate unique session ID
-session_id = str(uuid.uuid4())
-print("Session ID:", session_id)
+# Set a secret key for session management
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24))
 
 # Storage for user conversations and debate histories
 conversations = {}
@@ -27,6 +26,13 @@ debate_histories = {}
 # Load system prompt for perspectives
 with open("perspectivesPrompt.txt", "r") as file:
     prompt_context = file.read().strip()
+
+# Check for session ID before each request
+@app.before_request
+def check_session():
+    if 'session_id' not in session:
+        session['session_id'] = str(uuid.uuid4())
+        print("New session created:", session['session_id'])
 
 # AI Functions
 def generate_perspectives(user_input):
@@ -93,7 +99,9 @@ def get_response():
     2. Perspective selection - returns initial responses
     3. Follow-up messages - returns updated conversation
     """
-    global conversations
+    # Get session ID from Flask session
+    session_id = session.get('session_id')
+    
     data = request.json
     user_input = data.get('user_input', "").strip()
     selected_tab = data.get('tab', "all") 
@@ -207,14 +215,15 @@ def get_response():
 @app.route('/get_debate_response', methods=['POST'])
 def get_debate_response():
     """Generate a debate response from a perspective on a topic."""
-    global debate_histories
+    # Get session ID from Flask session
+    session_id = session.get('session_id')
     
     data = request.json
     
     perspective_key = data.get('perspective_key')
     perspective = data.get('perspective')
     topic = data.get('topic', '').strip()
-    session_id = data.get('session_id', str(uuid.uuid4()))  # Use provided session ID or generate one
+    debate_session_id = data.get('session_id', str(uuid.uuid4()))  # Use provided debate ID or generate one
     
     # Check if this is the first or second perspective
     is_second = 'other_perspective' in data
@@ -226,15 +235,15 @@ def get_debate_response():
         return jsonify({"error": "Missing required data"}), 400
     
     # Initialize debate history for this session if it doesn't exist
-    if session_id not in debate_histories:
-        debate_histories[session_id] = {
+    if debate_session_id not in debate_histories:
+        debate_histories[debate_session_id] = {
             "topic": topic,
             "messages": []
         }
     
     try:
         # Get the debate history
-        debate_history = debate_histories[session_id]
+        debate_history = debate_histories[debate_session_id]
         
         # Create messages array for the API call
         messages = [
@@ -296,7 +305,7 @@ def get_debate_response():
         return jsonify({
             "response": response_text,
             "perspective_key": perspective_key,
-            "session_id": session_id
+            "session_id": debate_session_id
         })
         
     except Exception as e:
@@ -306,7 +315,8 @@ def get_debate_response():
 @app.route('/get_debate_counterpoint', methods=['POST'])
 def get_debate_counterpoint():
     """Generate a counterpoint in an ongoing debate with access to full history."""
-    global debate_histories
+    # Get session ID from Flask session
+    session_id = session.get('session_id')
     
     data = request.json
     
@@ -315,18 +325,18 @@ def get_debate_counterpoint():
     other_perspective_key = data.get('other_perspective_key')
     other_perspective = data.get('other_perspective')
     other_response = data.get('other_response', '').strip()
-    session_id = data.get('session_id')
+    debate_session_id = data.get('session_id')
     
-    if not perspective or not other_perspective or not other_response or not session_id:
+    if not perspective or not other_perspective or not other_response or not debate_session_id:
         return jsonify({"error": "Missing required data"}), 400
     
     # Check if we have a debate history for this session
-    if session_id not in debate_histories:
+    if debate_session_id not in debate_histories:
         return jsonify({"error": "No debate history found for this session"}), 400
     
     try:
         # Get the debate history
-        debate_history = debate_histories[session_id]
+        debate_history = debate_histories[debate_session_id]
         topic = debate_history["topic"]
         
         # Create messages array for the API call
@@ -378,12 +388,24 @@ def get_debate_counterpoint():
         return jsonify({
             "response": response_text,
             "perspective_key": perspective_key,
-            "session_id": session_id
+            "session_id": debate_session_id
         })
         
     except Exception as e:
         print(f"Error generating debate counterpoint: {str(e)}")
         return jsonify({"error": "Failed to generate counterpoint"}), 500
+
+# Route to clear session data (useful for testing/debugging)
+@app.route('/clear_session', methods=['GET'])
+def clear_session():
+    """Clear the current session data for testing purposes"""
+    if 'session_id' in session:
+        old_session_id = session['session_id']
+        if old_session_id in conversations:
+            del conversations[old_session_id]
+        session.clear()
+        return jsonify({"message": f"Session {old_session_id} cleared successfully"})
+    return jsonify({"message": "No active session to clear"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

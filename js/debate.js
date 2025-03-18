@@ -811,6 +811,17 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
 
     console.log("Starting debate between:", perspectives[perspectiveKey], "and", perspectives[otherPerspectiveKey]);
 
+
+    
+
+    const params = {
+        perspective_key: perspectiveKey,
+        perspective: perspectives[perspectiveKey],
+        topic: topic,
+        other_perspective_key: otherPerspectiveKey,
+        other_perspective: perspectives[otherPerspectiveKey]
+    };
+
     
     API.getDebateResponse(params)
         .then(response => {
