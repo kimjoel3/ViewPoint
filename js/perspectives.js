@@ -242,7 +242,6 @@ function addChatInputContainer() {
 
 // Fix for the sendChatMessage function in perspectives.js (from paste-4.txt)
 function sendChatMessage() {
-    // Prevent multiple submissions with a flag
     if (window.isSubmitting) {
         console.log("Already submitting, ignoring duplicate call");
         return;
@@ -251,17 +250,14 @@ function sendChatMessage() {
     const userInput = document.getElementById("chat-input").value.trim();
     if (!userInput) return;
 
-    // Set flag to indicate submission in progress
     window.isSubmitting = true;
     
-    // Get the active tab
     const activeTab = document.querySelector(".tab.active");
     const currentTab = activeTab ? activeTab.getAttribute("data-tab") : selectedPerspectives[0];
 
     console.log("Sending chat message to perspective:", currentTab);
     console.log("User input:", userInput);
 
-    // Add the user message to the UI
     const chatMessages = document.getElementById("chat-messages");
     if (!chatMessages) {
         console.error("Chat messages container not found!");
@@ -270,17 +266,10 @@ function sendChatMessage() {
         return;
     }
 
-    const userDiv = document.createElement("div");
-    userDiv.className = "user-message";
-    userDiv.innerHTML = '<p style="text-align: right;"><strong>You:</strong> ' + userInput + '</p>';
-    chatMessages.appendChild(userDiv);
-    
     // Clear input
     document.getElementById("chat-input").value = "";
-    
-    // Disable input while waiting for response
     document.getElementById("chat-input").disabled = true;
-    
+
     // Show loading indicator
     const loadingDiv = document.createElement("div");
     loadingDiv.id = "chat-loading";
@@ -292,86 +281,52 @@ function sendChatMessage() {
             ${perspectives[currentTab] || "The perspective"} is responding...
         </div>`;
     chatMessages.appendChild(loadingDiv);
-    
-    // Scroll to bottom
+
     if (typeof scrollToBottom === 'function') {
         scrollToBottom("chat-messages");
     } else {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-    
+
     // Send message to API
-    try {
-        API.sendFollowUp(userInput, currentTab, selectedPerspectives)
-            .then(data => {
-                // Remove loading indicator
-                const loadingElement = document.getElementById("chat-loading");
-                if (loadingElement) {
-                    loadingElement.remove();
-                }
-                
-                // Check if the data is valid
-                if (!data || !data.conversations) {
-                    throw new Error("Invalid response format from server");
-                }
-                
-                // Update conversation history
-                updateChatInterface(data);
-                
-                // Re-enable input
-                document.getElementById("chat-input").disabled = false;
-                document.getElementById("chat-input").focus();
-                
-                // Reset submission flag
-                window.isSubmitting = false;
-            })
-            .catch(error => {
-                console.error("Error in sendChatMessage:", error);
-                
-                // Remove loading indicator
-                const loadingElement = document.getElementById("chat-loading");
-                if (loadingElement) {
-                    loadingElement.remove();
-                }
-                
-                // Show error message
-                const errorDiv = document.createElement("div");
-                errorDiv.style.textAlign = "center";
-                errorDiv.style.margin = "15px 0";
-                errorDiv.style.padding = "10px";
-                errorDiv.style.backgroundColor = "#ffebee";
-                errorDiv.style.color = "#c62828";
-                errorDiv.style.borderRadius = "8px";
-                errorDiv.textContent = "Error: " + (error.message || "Failed to get a response. Please try again.");
-                chatMessages.appendChild(errorDiv);
-                
-                // Re-enable input
-                document.getElementById("chat-input").disabled = false;
-                
-                // Reset submission flag
-                window.isSubmitting = false;
-            });
-    } catch (error) {
-        console.error("Exception in sendChatMessage:", error);
-        
-        // Remove loading indicator
-        const loadingElement = document.getElementById("chat-loading");
-        if (loadingElement) {
-            loadingElement.remove();
-        }
-        
-        // Show error message
-        const errorDiv = document.createElement("div");
-        errorDiv.style.textAlign = "center";
-        errorDiv.style.margin = "15px 0";
-        errorDiv.style.color = "red";
-        errorDiv.textContent = "Error: " + (error.message || "Unknown error occurred");
-        chatMessages.appendChild(errorDiv);
-        
-        // Re-enable input
-        document.getElementById("chat-input").disabled = false;
-        
-        // Reset submission flag
-        window.isSubmitting = false;
-    }
+    API.sendFollowUp(userInput, currentTab, selectedPerspectives)
+        .then(data => {
+            // Remove loading indicator
+            const loadingElement = document.getElementById("chat-loading");
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+
+            // Call the updateChatInterface function from ui.js
+            if (typeof window.updateChatInterface === 'function') {
+                window.updateChatInterface(data);
+            } else {
+                console.error("Error: updateChatInterface function not found in global scope.");
+            }
+
+            document.getElementById("chat-input").disabled = false;
+            document.getElementById("chat-input").focus();
+            window.isSubmitting = false;
+        })
+        .catch(error => {
+            console.error("Error in sendChatMessage:", error);
+
+            const loadingElement = document.getElementById("chat-loading");
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+
+            const errorDiv = document.createElement("div");
+            errorDiv.style.textAlign = "center";
+            errorDiv.style.margin = "15px 0";
+            errorDiv.style.padding = "10px";
+            errorDiv.style.backgroundColor = "#ffebee";
+            errorDiv.style.color = "#c62828";
+            errorDiv.style.borderRadius = "8px";
+            errorDiv.textContent = "Error: " + (error.message || "Failed to get a response. Please try again.");
+            chatMessages.appendChild(errorDiv);
+
+            document.getElementById("chat-input").disabled = false;
+            window.isSubmitting = false;
+        });
 }
