@@ -49,9 +49,33 @@ def generate_perspectives(user_input):
     )
     
     perspectives_text = response.choices[0].message.content.strip()
-    raw_perspectives = [p.strip() for p in perspectives_text.split("\n") if p.strip()]
-
-    numbered_perspectives = {str(i+1): raw_perspectives[i] for i in range(min(8, len(raw_perspectives)))}
+    
+    # More robust parsing:
+    # First, replace any multiple consecutive newlines with a single one
+    perspectives_text = '\n'.join(line for line in perspectives_text.split('\n') if line.strip())
+    
+    # Then look for numbered formats like "1. Perspective" or similar patterns
+    import re
+    numbered_pattern = re.compile(r'^\d+[\.\)\-:]\s*(.*?)$', re.MULTILINE)
+    matches = numbered_pattern.findall(perspectives_text)
+    
+    if matches:
+        # If we found numbered perspectives, use those
+        raw_perspectives = [p.strip() for p in matches if p.strip()]
+    else:
+        # Otherwise fall back to simple newline splitting
+        raw_perspectives = [p.strip() for p in perspectives_text.split('\n') if p.strip()]
+    
+    # Additional cleanup for each perspective
+    cleaned_perspectives = []
+    for p in raw_perspectives:
+        # Replace any internal newlines with spaces
+        p = ' '.join(line.strip() for line in p.split('\n'))
+        # Remove any double spaces
+        p = ' '.join(p.split())
+        cleaned_perspectives.append(p)
+    
+    numbered_perspectives = {str(i+1): cleaned_perspectives[i] for i in range(min(8, len(cleaned_perspectives)))}
     print(numbered_perspectives)
     return numbered_perspectives
 
@@ -364,7 +388,7 @@ def get_debate_counterpoint():
         Be thoughtful, persuasive, and authentic to your perspective's characteristics.
         
         Reference previous points made in the debate when relevant.
-        Keep your response to 2-3 sentences for readability.
+        Keep your response to 1-2 sentences for readability.
         """
         
         messages.append({"role": "user", "content": system_prompt})

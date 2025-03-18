@@ -40,53 +40,81 @@
 }
 
 
-
-/* Perspective selection */
+/* Update to perspective-list in components.css */
 .perspective-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px auto;
+    max-width: 1000px;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 .perspective-item {
-    padding: 10px;
+    padding: 15px 20px;
     border: 2px solid var(--primary);
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    text-align: center;
+    text-align: left;
     font-weight: bold;
     background: white;
-    transition: background 0.3s, border 0.3s;
+    transition: background 0.3s, border 0.3s, transform 0.2s;
+    font-size: 16px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0;
+}
+
+.perspective-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .perspective-item.selected {
     background: var(--primary);
     color: white;
     border-color: var(--primary-dark);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Confirmation button */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .perspective-item {
+        font-size: 14px;
+        padding: 12px 15px;
+    }
+    
+    .perspective-list {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+/* Make Confirm Selection button more prominent too */
 #confirm-selection {
     display: block;
-    margin: 20px auto;
+    margin: 30px auto;
     padding: 16px 32px;
     font-size: 18px;
     font-weight: bold;
-    background: var(--primary-light);
-    color: var(--primary-dark);
+    background: var(--primary);
+    color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     transition: background 0.3s, transform 0.2s;
-    width: 25%;
+    width: 250px;
+    max-width: 90%;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 #confirm-selection:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    background: var(--primary-dark);
 }
 
 
