@@ -38,7 +38,7 @@ def generate_perspectives(user_input):
     raw_perspectives = [p.strip() for p in perspectives_text.split("\n") if p.strip()]
 
     numbered_perspectives = {str(i+1): raw_perspectives[i] for i in range(min(8, len(raw_perspectives)))}
-
+    print(numbered_perspectives)
     return numbered_perspectives
 
 def first_chat(user_input, perspectives):
@@ -71,6 +71,198 @@ def index_page():
     return render_template('home.html') # Render the HTML template
 
 
+
+# Add these endpoints to your Flask application
+
+# Add these endpoints to your Flask application
+# Add these endpoints to your Flask application
+
+# Add this dictionary at the top of your Flask application to store debate histories
+# alongside your existing conversations dictionary
+
+# Store debate histories per session
+debate_histories = {}
+
+@app.route('/get_debate_response', methods=['POST'])
+def get_debate_response():
+    """Generate a debate response from a perspective on a topic."""
+    global debate_histories
+    
+    data = request.json
+    
+    perspective_key = data.get('perspective_key')
+    perspective = data.get('perspective')
+    topic = data.get('topic', '').strip()
+    session_id = data.get('session_id', str(uuid.uuid4()))  # Use provided session ID or generate one
+    
+    # Check if this is the first or second perspective
+    is_second = 'other_perspective' in data
+    other_perspective_key = data.get('other_perspective_key', '')
+    other_perspective = data.get('other_perspective', '')
+    other_response = data.get('other_response', '')
+    
+    if not topic or not perspective:
+        return jsonify({"error": "Missing required data"}), 400
+    
+    # Initialize debate history for this session if it doesn't exist
+    if session_id not in debate_histories:
+        debate_histories[session_id] = {
+            "topic": topic,
+            "messages": []
+        }
+    
+    try:
+        # Get the debate history
+        debate_history = debate_histories[session_id]
+        
+        # Create messages array for the API call
+        messages = [
+            {"role": "system", "content": f"You are responding as: {perspective}"}
+        ]
+        
+        # Add context about the debate
+        debate_context = f"This is a debate about: {topic}"
+        
+        # If we have previous messages, add them to the context
+        if debate_history["messages"]:
+            debate_context += "\n\nPrevious messages in this debate:"
+            for msg in debate_history["messages"]:
+                perspective_name = msg["perspective_name"]
+                content = msg["content"]
+                debate_context += f"\n{perspective_name}: {content}"
+        
+        messages.append({"role": "user", "content": debate_context})
+        
+        # Different prompts for first and second perspective
+        if is_second:
+            instruction = f"""
+            You are participating in a debate about this topic: {topic}
+            
+            The other participant ({other_perspective}) has already responded with:
+            "{other_response}"
+            
+            Provide your perspective on the topic, addressing or responding to what the other participant said.
+            Make your response thoughtful, substantive, and authentic to your perspective's viewpoint.
+            Keep your response to 3-4 sentences for readability.
+            """
+        else:
+            instruction = f"""
+            You are starting a debate about this topic: {topic}
+            
+            Provide your initial perspective on this topic. You'll be the first to speak.
+            Make your response thoughtful, substantive, and authentic to your perspective's viewpoint.
+            Keep your response to 3-4 sentences for readability.
+            """
+        
+        messages.append({"role": "user", "content": instruction})
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=200
+        )
+        
+        response_text = response.choices[0].message.content.strip()
+        
+        # Store this message in the debate history
+        debate_history["messages"].append({
+            "perspective_key": perspective_key,
+            "perspective_name": perspective,
+            "content": response_text
+        })
+        
+        return jsonify({
+            "response": response_text,
+            "perspective_key": perspective_key,
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        print(f"Error generating debate response: {str(e)}")
+        return jsonify({"error": "Failed to generate response"}), 500
+
+@app.route('/get_debate_counterpoint', methods=['POST'])
+def get_debate_counterpoint():
+    """Generate a counterpoint in an ongoing debate with access to full history."""
+    global debate_histories
+    
+    data = request.json
+    
+    perspective_key = data.get('perspective_key')
+    perspective = data.get('perspective')
+    other_perspective_key = data.get('other_perspective_key')
+    other_perspective = data.get('other_perspective')
+    other_response = data.get('other_response', '').strip()
+    session_id = data.get('session_id')
+    
+    if not perspective or not other_perspective or not other_response or not session_id:
+        return jsonify({"error": "Missing required data"}), 400
+    
+    # Check if we have a debate history for this session
+    if session_id not in debate_histories:
+        return jsonify({"error": "No debate history found for this session"}), 400
+    
+    try:
+        # Get the debate history
+        debate_history = debate_histories[session_id]
+        topic = debate_history["topic"]
+        
+        # Create messages array for the API call
+        messages = [
+            {"role": "system", "content": f"You are responding as: {perspective}"}
+        ]
+        
+        # Add context about the debate including full history
+        debate_context = f"This is a debate about: {topic}\n\nFull debate history:"
+        
+        for msg in debate_history["messages"]:
+            speaker_name = msg["perspective_name"]
+            content = msg["content"]
+            debate_context += f"\n{speaker_name}: {content}"
+        
+        # Add instruction
+        debate_context += f"\n\nNow, respond to the most recent message from {other_perspective}. Maintain your perspective's viewpoint while addressing their points directly."
+        
+        messages.append({"role": "user", "content": debate_context})
+        
+        system_prompt = f"""
+        You are continuing a debate with {other_perspective} about {topic}.
+        
+        Respond directly to their points from your perspective's viewpoint.
+        Be thoughtful, persuasive, and authentic to your perspective's characteristics.
+        
+        Reference previous points made in the debate when relevant.
+        Keep your response to 2-3 sentences for readability.
+        """
+        
+        messages.append({"role": "user", "content": system_prompt})
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.7,
+            max_tokens=200
+        )
+        
+        response_text = response.choices[0].message.content.strip()
+        
+        # Store this message in the debate history
+        debate_history["messages"].append({
+            "perspective_key": perspective_key,
+            "perspective_name": perspective,
+            "content": response_text
+        })
+        
+        return jsonify({
+            "response": response_text,
+            "perspective_key": perspective_key,
+            "session_id": session_id
+        })
+        
+    except Exception as e:
+        print(f"Error generating debate counterpoint: {str(e)}")
+        return jsonify({"error": "Failed to generate counterpoint"}), 500
 
 
 @app.route('/get_response', methods=['POST'])
@@ -171,6 +363,7 @@ def get_response():
             "perspectives": perspectives
         })
     
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
