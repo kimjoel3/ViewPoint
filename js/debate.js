@@ -343,7 +343,7 @@ function setupDebateInterface() {
     document.getElementById("debate-selection").style.display = "none";
     
     // Update subheading
-    document.getElementById("subheading").textContent = "Perspective Debate";
+    document.getElementById("subheading").textContent = "Follow up or Debate";
     
     // Create container for main + debate layout
     const layoutContainer = document.createElement("div");

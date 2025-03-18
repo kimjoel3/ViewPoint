@@ -386,6 +386,8 @@ def get_debate_counterpoint():
         
         Respond directly to their points from your perspective's viewpoint.
         Be thoughtful, persuasive, and authentic to your perspective's characteristics.
+
+        Try to be a little argumentative.
         
         Reference previous points made in the debate when relevant.
         Keep your response to 1-2 sentences for readability.
