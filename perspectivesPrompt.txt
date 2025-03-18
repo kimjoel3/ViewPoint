@@ -16,4 +16,4 @@ Do not provide explanations or additional context. Simply return the eight persp
 [Short descriptor] – [Adjective]\n
 [Short descriptor] – [Adjective]\n
 [Short descriptor] – [Adjective]\n
-[Short descriptor] – [Adjective]\n
+[Short descriptor] – [Adjective]
