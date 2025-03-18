@@ -4,6 +4,18 @@ let debatePerspectives = [];
 let debateActive = false;
 let debateSessionId = null;
 
+
+if (!window.debatePerspectives) {
+    window.debatePerspectives = [];
+  }
+
+if (typeof window.perspectives === 'undefined') {
+    window.perspectives = {};
+}
+if (typeof window.selectedPerspectives === 'undefined') {
+    window.selectedPerspectives = [];
+}
+
 // Safe element access helper
 function safeGetElement(id, fallbackAction) {
     const element = document.getElementById(id);
@@ -22,6 +34,113 @@ function setInnerHTML(element, html) {
         console.error("Attempted to set innerHTML on null element");
     }
 }
+
+function showDebateButtons() {
+    // Create button container
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "debate-buttons";
+    buttonContainer.id = "debate-buttons";
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "center";
+    buttonContainer.style.gap = "10px";
+    buttonContainer.style.margin = "15px 0";
+    
+    // Create button for perspective 1
+    const button1 = document.createElement("button");
+    button1.className = "debate-continue-btn";
+    button1.textContent = `Let ${perspectives[debatePerspectives[0]]} respond`;
+    button1.setAttribute("data-perspective", debatePerspectives[0]);
+    button1.style.padding = "10px 15px";
+    button1.style.background = "#f1e6fb";
+    button1.style.color = "#333";
+    button1.style.border = "none";
+    button1.style.borderRadius = "20px";
+    button1.style.fontWeight = "bold";
+    button1.style.cursor = "pointer";
+    
+    button1.addEventListener("click", function() {
+        continueDebate(debatePerspectives[0]);
+    });
+    
+    // Create button for perspective 2
+    const button2 = document.createElement("button");
+    button2.className = "debate-continue-btn";
+    button2.textContent = `Let ${perspectives[debatePerspectives[1]]} respond`;
+    button2.setAttribute("data-perspective", debatePerspectives[1]);
+    button2.style.padding = "10px 15px";
+    button2.style.background = "#e6f0fa";
+    button2.style.color = "#333";
+    button2.style.border = "none";
+    button2.style.borderRadius = "20px";
+    button2.style.fontWeight = "bold";
+    button2.style.cursor = "pointer";
+    
+    button2.addEventListener("click", function() {
+        continueDebate(debatePerspectives[1]);
+    });
+    
+    // Create new topic button
+    const newTopicButton = document.createElement("button");
+    newTopicButton.className = "debate-newtopic-btn";
+    newTopicButton.textContent = "New Topic";
+    newTopicButton.style.padding = "10px 15px";
+    newTopicButton.style.background = "#e3d9ee";
+    newTopicButton.style.color = "#7d4f9e";
+    newTopicButton.style.border = "none";
+    newTopicButton.style.borderRadius = "20px";
+    newTopicButton.style.fontWeight = "bold";
+    newTopicButton.style.cursor = "pointer";
+    
+    newTopicButton.addEventListener("click", function() {
+        // Remove buttons
+        const buttonsElement = document.getElementById("debate-buttons");
+        if (buttonsElement) {
+            buttonsElement.remove();
+        }
+        
+        // Enable input
+        const debateInput = document.getElementById("debate-input");
+        if (debateInput) {
+            debateInput.disabled = false;
+            debateInput.focus();
+        }
+        
+        const debateSendBtn = document.getElementById("debate-send-btn");
+        if (debateSendBtn) {
+            debateSendBtn.disabled = false;
+            debateSendBtn.textContent = "Start";
+        }
+    });
+    
+    // Add exit debate button
+    const exitButton = document.createElement("button");
+    exitButton.className = "debate-exit-btn";
+    exitButton.textContent = "Exit Debate";
+    exitButton.style.padding = "10px 15px";
+    exitButton.style.background = "#f0f0f0";
+    exitButton.style.color = "#333";
+    exitButton.style.border = "none";
+    exitButton.style.borderRadius = "20px";
+    exitButton.style.fontWeight = "bold";
+    exitButton.style.cursor = "pointer";
+    
+    exitButton.addEventListener("click", exitDebateMode);
+    
+    // Add buttons to container
+    buttonContainer.appendChild(button1);
+    buttonContainer.appendChild(button2);
+    buttonContainer.appendChild(newTopicButton);
+    buttonContainer.appendChild(exitButton);
+    
+    // Add to debate messages
+    const debateMessages = document.getElementById("debate-messages");
+    if (debateMessages) {
+        debateMessages.appendChild(buttonContainer);
+        // Scroll to bottom
+        scrollToBottom("debate-messages");
+    }
+}
+
 
 // Initialize the debate button
 function initiateDebateFeature() {
@@ -75,10 +194,17 @@ function initiateDebateFeature() {
 }
 
 // Show perspective selection for debate
+// Show perspective selection for debate
+// Show perspective selection for debate
 function showDebateSelection() {
+    console.log("Running showDebateSelection...");
+
     // Hide the debate button
-    document.getElementById("start-debate-btn").style.display = "none";
-    
+    const debateButton = document.getElementById("start-debate-btn");
+    if (debateButton) {
+        debateButton.style.display = "none";
+    }
+
     // Create selection container
     const selectionContainer = document.createElement("div");
     selectionContainer.id = "debate-selection";
@@ -90,14 +216,17 @@ function showDebateSelection() {
     selectionContainer.style.borderRadius = "10px";
     selectionContainer.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.1)";
     selectionContainer.style.textAlign = "center";
-    
-    // Add heading
+
+    // Reset debatePerspectives
+    window.debatePerspectives = [];
+
+    // Create heading
     const heading = document.createElement("h3");
-    heading.textContent = "Select two perspectives for debate";
+    heading.textContent = "Select two perspectives to debate";
     heading.style.marginBottom = "20px";
     heading.style.color = "#7d4f9e";
     selectionContainer.appendChild(heading);
-    
+
     // Create perspective selection container
     const perspectiveButtonContainer = document.createElement("div");
     perspectiveButtonContainer.style.display = "flex";
@@ -105,12 +234,14 @@ function showDebateSelection() {
     perspectiveButtonContainer.style.gap = "10px";
     perspectiveButtonContainer.style.justifyContent = "center";
     perspectiveButtonContainer.style.marginBottom = "20px";
-    
-    // Add buttons for each perspective
-    selectedPerspectives.forEach(key => {
+
+    // Add buttons only for the 3 previously selected perspectives
+    window.selectedPerspectives.forEach((key) => {
         const button = document.createElement("button");
         button.className = "debate-perspective-btn";
-        button.textContent = perspectives[key];
+        
+        // Use the perspective text from the previously generated perspectives
+        button.textContent = window.perspectives[key];
         button.setAttribute("data-key", key);
         button.style.padding = "10px 15px";
         button.style.border = "2px solid #9a6abf";
@@ -119,36 +250,41 @@ function showDebateSelection() {
         button.style.color = "#333";
         button.style.fontWeight = "bold";
         button.style.cursor = "pointer";
-        
-        button.addEventListener("click", function() {
+        button.style.margin = "5px";
+
+        button.addEventListener("click", function () {
             const key = this.getAttribute("data-key");
-            
+            debatePerspectives.push(key);
+
             // Toggle selection
-            if (debatePerspectives.includes(key)) {
-                debatePerspectives = debatePerspectives.filter(p => p !== key);
+            if (window.debatePerspectives.includes(key)) {
+                window.debatePerspectives = window.debatePerspectives.filter((p) => p !== key);
                 this.style.background = "white";
                 this.style.color = "#333";
-            } else if (debatePerspectives.length < 2) {
-                debatePerspectives.push(key);
+            } else if (window.debatePerspectives.length < 2) {
+                window.debatePerspectives.push(key);
                 this.style.background = "#9a6abf";
                 this.style.color = "white";
             }
-            
+
             // Enable/disable confirm button
-            if (debatePerspectives.length === 2) {
-                document.getElementById("confirm-debate-btn").disabled = false;
-                document.getElementById("confirm-debate-btn").style.opacity = "1";
-            } else {
-                document.getElementById("confirm-debate-btn").disabled = true;
-                document.getElementById("confirm-debate-btn").style.opacity = "0.5";
+            const confirmButton = document.getElementById("confirm-debate-btn");
+            if (confirmButton) {
+                if (window.debatePerspectives.length === 2) {
+                    confirmButton.disabled = false;
+                    confirmButton.style.opacity = "1";
+                } else {
+                    confirmButton.disabled = true;
+                    confirmButton.style.opacity = "0.5";
+                }
             }
         });
-        
+
         perspectiveButtonContainer.appendChild(button);
     });
-    
+
     selectionContainer.appendChild(perspectiveButtonContainer);
-    
+
     // Add confirm button
     const confirmButton = document.createElement("button");
     confirmButton.id = "confirm-debate-btn";
@@ -162,45 +298,28 @@ function showDebateSelection() {
     confirmButton.style.cursor = "pointer";
     confirmButton.style.opacity = "0.5";
     confirmButton.disabled = true;
-    
-    // Add cancel button to return to normal chat
-    const cancelButton = document.createElement("button");
-    cancelButton.id = "cancel-debate-btn";
-    cancelButton.textContent = "Cancel";
-    cancelButton.style.padding = "12px 24px";
-    cancelButton.style.background = "#f0f0f0";
-    cancelButton.style.color = "#333";
-    cancelButton.style.border = "none";
-    cancelButton.style.borderRadius = "20px";
-    cancelButton.style.fontWeight = "bold";
-    cancelButton.style.cursor = "pointer";
-    cancelButton.style.marginLeft = "10px";
-    
-    cancelButton.addEventListener("click", function() {
-        // Remove selection container
-        document.getElementById("debate-selection").remove();
-        
-        // Show debate button again
-        document.getElementById("start-debate-btn").style.display = "block";
-        
-        // Reset selected perspectives
-        debatePerspectives = [];
-    });
-    
+
     confirmButton.addEventListener("click", setupDebateInterface);
-    
-    // Add buttons to container
-    const buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "center";
-    buttonContainer.style.gap = "10px";
-    buttonContainer.appendChild(confirmButton);
-    buttonContainer.appendChild(cancelButton);
-    selectionContainer.appendChild(buttonContainer);
-    
-    // Add to page
-    document.querySelector(".content").appendChild(selectionContainer);
+
+    selectionContainer.appendChild(confirmButton);
+
+    // Append selection container to page
+    const contentArea = document.querySelector(".content");
+    if (contentArea) {
+        // Clear any existing debate selection first
+        const existingSelection = document.getElementById("debate-selection");
+        if (existingSelection) {
+            existingSelection.remove();
+        }
+        contentArea.appendChild(selectionContainer);
+    }
 }
+
+// Expose the function to global scope
+window.showDebateSelection = showDebateSelection;
+
+
+
 
 // Set up the debate interface
 function setupDebateInterface() {
@@ -423,9 +542,17 @@ function exitDebateMode() {
 }
 
 // Start the debate with user's topic
+// Start the debate with user's topic
 function startDebate() {
     const topic = document.getElementById("debate-input").value.trim();
     if (!topic) return;
+    
+    // Ensure perspectives are properly selected
+    if (!window.debatePerspectives || window.debatePerspectives.length < 2) {
+        console.error("Error: Not enough perspectives selected for debate.");
+        alert("Please select two perspectives for the debate.");
+        return;
+    }
     
     // Reset session ID when starting a new debate
     debateSessionId = null;
@@ -449,6 +576,17 @@ function startDebate() {
     
     const debateMessages = document.getElementById("debate-messages");
     if (debateMessages) {
+        // Create loading div
+        const loadingDiv = document.createElement("div");
+        loadingDiv.id = "debate-loading";
+        loadingDiv.style.textAlign = "center";
+        loadingDiv.style.margin = "15px 0";
+        loadingDiv.innerHTML = 
+            `<div style="display: inline-block; padding: 10px; border-radius: 10px; background: #f0f0f0;">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #9a6abf; margin-right: 10px; animation: pulse 1s infinite;"></span>
+                Generating responses...
+            </div>`;
+        
         debateMessages.appendChild(loadingDiv);
         // Scroll to bottom
         scrollToBottom("debate-messages");
@@ -457,17 +595,70 @@ function startDebate() {
         return;
     }
     
-    // Get counterpoint response
+    // Get first and second perspective keys
+    const perspectiveKey = window.debatePerspectives[0];
+    const otherPerspectiveKey = window.debatePerspectives[1];
+
+    console.log("Starting debate between:", 
+        window.perspectives[perspectiveKey], 
+        "and", 
+        window.perspectives[otherPerspectiveKey]
+    );
+    
+    // Prepare params for first perspective's response
     const params = {
         perspective_key: perspectiveKey,
-        perspective: perspectives[perspectiveKey],
+        perspective: window.perspectives[perspectiveKey],
+        topic: topic,
         other_perspective_key: otherPerspectiveKey,
-        other_perspective: perspectives[otherPerspectiveKey],
-        other_response: latestOtherResponse,
-        session_id: debateSessionId
+        other_perspective: window.perspectives[otherPerspectiveKey]
     };
     
-    API.getDebateCounterpoint(params)
+    API.getDebateResponse(params)
+        .then(response => {
+            // Save the session ID from the response
+            debateSessionId = response.session_id;
+            
+            // Remove loading indicator
+            const loadingElement = document.getElementById("debate-loading");
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+            
+            // Display first perspective's response
+            displayDebateResponse(perspectiveKey, response.response);
+            
+            // Now get second perspective's response
+            const loadingDiv2 = document.createElement("div");
+            loadingDiv2.id = "debate-loading";
+            loadingDiv2.style.textAlign = "center";
+            loadingDiv2.style.margin = "15px 0";
+            loadingDiv2.innerHTML = 
+                `<div style="display: inline-block; padding: 10px; border-radius: 10px; background: #f0f0f0;">
+                    <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #9a6abf; margin-right: 10px; animation: pulse 1s infinite;"></span>
+                    ${window.perspectives[otherPerspectiveKey]} is responding...
+                </div>`;
+            
+            const debateMessages = document.getElementById("debate-messages");
+            if (debateMessages) {
+                debateMessages.appendChild(loadingDiv2);
+                // Scroll to bottom
+                scrollToBottom("debate-messages");
+            }
+            
+            // Get second perspective response
+            const secondParams = {
+                perspective_key: otherPerspectiveKey,
+                perspective: window.perspectives[otherPerspectiveKey],
+                topic: topic,
+                other_perspective_key: perspectiveKey,
+                other_perspective: window.perspectives[perspectiveKey],
+                other_response: response.response,
+                session_id: debateSessionId
+            };
+            
+            return API.getDebateResponse(secondParams);
+        })
         .then(response => {
             // Remove loading indicator
             const loadingElement = document.getElementById("debate-loading");
@@ -475,16 +666,16 @@ function startDebate() {
                 loadingElement.remove();
             }
             
-            // Display response
-            displayDebateResponse(perspectiveKey, response.response);
+            // Display second perspective's response
+            displayDebateResponse(otherPerspectiveKey, response.response);
             
-            // Show buttons again
+            // Show response buttons for continuing the debate
             showDebateButtons();
         })
         .catch(error => {
-            console.error("Error continuing debate:", error);
+            console.error("Error starting debate:", error);
             
-            // Remove loading indicator
+            // Remove loading indicator if present
             const loadingElement = document.getElementById("debate-loading");
             if (loadingElement) {
                 loadingElement.remove();
@@ -495,15 +686,23 @@ function startDebate() {
             errorDiv.style.textAlign = "center";
             errorDiv.style.margin = "15px 0";
             errorDiv.style.color = "red";
-            errorDiv.textContent = "Error generating response. Please try again.";
+            errorDiv.textContent = "Error generating debate responses. Please try again.";
             
             const debateMessages = document.getElementById("debate-messages");
             if (debateMessages) {
                 debateMessages.appendChild(errorDiv);
             }
             
-            // Show buttons again
-            showDebateButtons();
+            // Re-enable input
+            const debateInput = document.getElementById("debate-input");
+            if (debateInput) {
+                debateInput.disabled = false;
+            }
+            
+            const debateSendBtn = document.getElementById("debate-send-btn");
+            if (debateSendBtn) {
+                debateSendBtn.disabled = false;
+            }
         });
 }
 
@@ -586,11 +785,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
         });
     };
 }
-    if (debateMessages) {
-        debateMessages.appendChild(userDiv);
-    } 
-    
-    // Show loading indicator
     const loadingDiv = document.createElement("div");
     loadingDiv.id = "debate-loading";
     loadingDiv.style.textAlign = "center";
@@ -600,17 +794,23 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #9a6abf; margin-right: 10px; animation: pulse 1s infinite;"></span>
             Generating responses...
         </div>`;
-    debateMessages.appendChild(loadingDiv);
+    const debateMessages = document.getElementById("debate-messages");
+
+        
+    
+    // Show loading indicator
+    
     
     // Scroll to bottom
     scrollToBottom("debate-messages");
     
     // Get first perspective response
-    const params = {
-        perspective_key: debatePerspectives[0],
-        perspective: perspectives[debatePerspectives[0]],
-        topic: topic
-    };
+    const perspectiveKey = debatePerspectives[0]; // Ensure this is properly assigned
+    const otherPerspectiveKey = debatePerspectives[1];
+
+
+    console.log("Starting debate between:", perspectives[perspectiveKey], "and", perspectives[otherPerspectiveKey]);
+
     
     API.getDebateResponse(params)
         .then(response => {
@@ -730,111 +930,6 @@ function displayDebateResponse(perspectiveKey, response) {
 }
 
 // Show buttons to continue the debate
-function showDebateButtons() {
-    // Create button container
-    const buttonContainer = document.createElement("div");
-    buttonContainer.className = "debate-buttons";
-    buttonContainer.id = "debate-buttons";
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "center";
-    buttonContainer.style.gap = "10px";
-    buttonContainer.style.margin = "15px 0";
-    
-    // Create button for perspective 1
-    const button1 = document.createElement("button");
-    button1.className = "debate-continue-btn";
-    button1.textContent = `Let ${perspectives[debatePerspectives[0]]} respond`;
-    button1.setAttribute("data-perspective", debatePerspectives[0]);
-    button1.style.padding = "10px 15px";
-    button1.style.background = "#f1e6fb";
-    button1.style.color = "#333";
-    button1.style.border = "none";
-    button1.style.borderRadius = "20px";
-    button1.style.fontWeight = "bold";
-    button1.style.cursor = "pointer";
-    
-    button1.addEventListener("click", function() {
-        continueDebate(debatePerspectives[0]);
-    });
-    
-    // Create button for perspective 2
-    const button2 = document.createElement("button");
-    button2.className = "debate-continue-btn";
-    button2.textContent = `Let ${perspectives[debatePerspectives[1]]} respond`;
-    button2.setAttribute("data-perspective", debatePerspectives[1]);
-    button2.style.padding = "10px 15px";
-    button2.style.background = "#e6f0fa";
-    button2.style.color = "#333";
-    button2.style.border = "none";
-    button2.style.borderRadius = "20px";
-    button2.style.fontWeight = "bold";
-    button2.style.cursor = "pointer";
-    
-    button2.addEventListener("click", function() {
-        continueDebate(debatePerspectives[1]);
-    });
-    
-    // Create new topic button
-    const newTopicButton = document.createElement("button");
-    newTopicButton.className = "debate-newtopic-btn";
-    newTopicButton.textContent = "New Topic";
-    newTopicButton.style.padding = "10px 15px";
-    newTopicButton.style.background = "#e3d9ee";
-    newTopicButton.style.color = "#7d4f9e";
-    newTopicButton.style.border = "none";
-    newTopicButton.style.borderRadius = "20px";
-    newTopicButton.style.fontWeight = "bold";
-    newTopicButton.style.cursor = "pointer";
-    
-    newTopicButton.addEventListener("click", function() {
-        // Remove buttons
-        const buttonsElement = document.getElementById("debate-buttons");
-        if (buttonsElement) {
-            buttonsElement.remove();
-        }
-        
-        // Enable input
-        const debateInput = document.getElementById("debate-input");
-        if (debateInput) {
-            debateInput.disabled = false;
-            debateInput.focus();
-        }
-        
-        const debateSendBtn = document.getElementById("debate-send-btn");
-        if (debateSendBtn) {
-            debateSendBtn.disabled = false;
-            debateSendBtn.textContent = "Start";
-        }
-    });
-    
-    // Add exit debate button
-    const exitButton = document.createElement("button");
-    exitButton.className = "debate-exit-btn";
-    exitButton.textContent = "Exit Debate";
-    exitButton.style.padding = "10px 15px";
-    exitButton.style.background = "#f0f0f0";
-    exitButton.style.color = "#333";
-    exitButton.style.border = "none";
-    exitButton.style.borderRadius = "20px";
-    exitButton.style.fontWeight = "bold";
-    exitButton.style.cursor = "pointer";
-    
-    exitButton.addEventListener("click", exitDebateMode);
-    
-    // Add buttons to container
-    buttonContainer.appendChild(button1);
-    buttonContainer.appendChild(button2);
-    buttonContainer.appendChild(newTopicButton);
-    buttonContainer.appendChild(exitButton);
-    
-    // Add to debate messages
-    const debateMessages = document.getElementById("debate-messages");
-    if (debateMessages) {
-        debateMessages.appendChild(buttonContainer);
-        // Scroll to bottom
-        scrollToBottom("debate-messages");
-    }
-}
 
 // Continue the debate with selected perspective
 function continueDebate(perspectiveKey) {
@@ -1015,5 +1110,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             throw error;
         });
     };
+
 }
     

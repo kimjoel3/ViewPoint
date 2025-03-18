@@ -3,51 +3,71 @@
 let selectedPerspectives = [];
 let perspectives = {};
 
+// perspectives.js (loaded after debate.js)
+
 // Fetch perspectives from user input
+// In fetchPerspectives:
+// fetchPerspectives(userInput) – simplified example
 function fetchPerspectives(userInput) {
+    // Save the user’s initial question for later
     initialUserInput = userInput;
     
     API.fetchPerspectives(userInput)
-        .then(data => {
-            if (data.perspectives) {
-                perspectives = data.perspectives;
-                displayPerspectives();
-            } else {
-                console.error("No perspectives found in response:", data);
-            }
-        });
-}
+      .then(data => {
+        if (data.perspectives) {
+          // 1) Store the server’s dictionary in window.perspectives
+          window.perspectives = data.perspectives;
+          // 2) Also store it locally if needed
+          perspectives = data.perspectives;
+          
+          // 3) Now render them in the UI
+          displayPerspectives();
+        } else {
+          console.error("No perspectives found in response:", data);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching perspectives:", error);
+      });
+  }
+  
+
 
 // Display the perspectives as selectable items
 function displayPerspectives() {
     const list = document.getElementById("perspective-list");
     list.innerHTML = "";
-
-    console.log("Perspectives to Render:", perspectives);
-
-    Object.entries(perspectives).forEach(([key, text]) => {
-        const button = document.createElement("button");
-        button.className = "perspective-item";
-        button.textContent = text;
-        button.setAttribute("data-key", key);
-
-        button.addEventListener("click", () => {
-            if (selectedPerspectives.includes(key)) {
-                selectedPerspectives = selectedPerspectives.filter(k => k !== key);
-                button.classList.remove("selected");
-            } else if (selectedPerspectives.length < 3) {
-                selectedPerspectives.push(key);
-                button.classList.add("selected");
-            }
-            console.log("Selected Perspectives:", selectedPerspectives);
-        });
-
-        list.appendChild(button);
+  
+    // 'window.perspectives' should look like { "1": "Peacekeeper", "2": "Cost-split minimalist", ... }
+    Object.entries(window.perspectives).forEach(([key, text]) => {
+      // 'key' will be "1" or "2" or "3" etc.
+      // 'text' will be "Peacekeeper – conciliatory" or "Cost-split minimalist"
+  
+      const button = document.createElement("button");
+      button.className = "perspective-item";
+      button.textContent = text;         // <--- The label
+      button.setAttribute("data-key", key);
+  
+      button.addEventListener("click", () => {
+        // If they unselect it
+        if (selectedPerspectives.includes(key)) {
+          selectedPerspectives = selectedPerspectives.filter(k => k !== key);
+          button.classList.remove("selected");
+        } else if (selectedPerspectives.length < 3) {
+          selectedPerspectives.push(key);
+          button.classList.add("selected");
+        }
+        console.log("Selected Perspectives:", selectedPerspectives);
+      });
+  
+      list.appendChild(button);
     });
-}
+  }
+  
 
 function confirmPerspectivesAndInitializeChat() {
     if (selectedPerspectives.length === 3) {
+        window.selectedPerspectives = [...selectedPerspectives];
         // Hide the global input bar
         document.querySelector(".input-container").style.display = "none";
         
@@ -93,33 +113,38 @@ console.log("Debate.js loaded and running");
 
 // Modified initiateDebateFeature function with better error handling
 function initiateDebateFeature() {
+
     console.log("Initializing debate feature");
-    
+
+    // Wait for debate.js to fully load
+    if (typeof window.showDebateSelection !== 'function') {
+        console.warn("Waiting for debate.js to load...");
+        setTimeout(initiateDebateFeature, 100);
+        return;
+    }
+
+    // Proceed with initializing the debate feature
+    console.log("Debate feature loaded successfully.");
+
+    // Check if debate.js is loaded
+    if (typeof window.showDebateSelection !== 'function') {
+        console.error("Error: showDebateSelection function is not defined. Ensure debate.js is loaded before perspectives.js.");
+        return;
+    }
+
     // Check if button already exists
     if (document.getElementById("start-debate-btn")) {
         console.log("Debate button already exists");
         return;
     }
-    
+
     // Check if the content area exists
     const contentArea = document.querySelector(".content");
     if (!contentArea) {
         console.error("Content area not found - cannot add debate button");
         return;
     }
-    
-    // Store chat state for later restoration
-    window.originalChatState = {
-        chatDisplay: document.getElementById("chat-container") ? 
-            document.getElementById("chat-container").style.display : 'block',
-        inputContainerDisplay: document.querySelector(".chat-input-container") ? 
-            document.querySelector(".chat-input-container").style.display : 'flex',
-        messagesHtml: document.getElementById("chat-messages") ? 
-            document.getElementById("chat-messages").innerHTML : ''
-    };
-    
-    console.log("Saved original chat state", window.originalChatState);
-    
+
     // Create debate button
     const debateButton = document.createElement("button");
     debateButton.id = "start-debate-btn";
@@ -139,24 +164,21 @@ function initiateDebateFeature() {
     debateButton.style.maxWidth = "300px";
     debateButton.style.textAlign = "center";
     debateButton.style.boxShadow = "0 4px 10px rgba(0, 0, 0, 0.05)";
-    
-    // Add click event
-    debateButton.addEventListener("click", showDebateSelection);
-    
+
+    // Add click event safely
+    debateButton.addEventListener("click", function () {
+        if (typeof window.showDebateSelection === 'function') {
+            window.showDebateSelection();
+        } else {
+            console.error("Error: showDebateSelection function is not available.");
+        }
+    });
+
     // Add button to the page
     contentArea.appendChild(debateButton);
     console.log("Debate button added to content area");
 }
 
-// Add a global function to force initialize the debate feature
-window.forceInitializeDebateFeature = function() {
-    console.log("Force initializing debate feature");
-    if (typeof initiateDebateFeature === 'function') {
-        initiateDebateFeature();
-    } else {
-        console.error("initiateDebateFeature function not found");
-    }
-};
 
 // Create tabs for each perspective
 function createChatTabs() {
@@ -248,7 +270,7 @@ function sendChatMessage() {
     }
     
     const userInput = document.getElementById("chat-input").value.trim();
-    if (!userInput) return;
+    if (!userInput)return;
 
     window.isSubmitting = true;
     
