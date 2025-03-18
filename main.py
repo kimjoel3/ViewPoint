@@ -64,112 +64,14 @@ def first_chat(user_input, perspectives):
 
 @app.route('/')
 def login_page():
-    return render_template('login.html')  # Render the HTML template
+    return render_template('start.html')  # Render the HTML template
 
-@app.route('/google-login')
+@app.route('/home')
 def index_page():
-    return render_template('start.html') # Render the HTML template
-
-#@app.route('/start.html')
-#def start_page():
-#    return render_template('start.html') # Render the HTML template
+    return render_template('home.html') # Render the HTML template
 
 
 
-"""
-@app.route('/get_response', methods=['POST'])
-def get_response():
-    global conversations
-    data = request.json
-    user_input = data.get('user_input', "").strip()
-    selected_tab = data.get('tab', "all")  # Access the selected tab from the request body
-
-    if not user_input:
-        return jsonify({"error": "No input provided"}), 400
-
-    if session_id not in conversations:
-        conversations[session_id] = {
-            "all": [],
-            "perspectives": {},
-            "selected_perspectives": []
-        }
-
-    session_data = conversations[session_id]
-
-    # initial perspective generation
-    if not session_data["perspectives"]:
-        perspectives = generate_perspectives(user_input)
-        print("PERSPECTIVES:", perspectives)
-        session_data["perspectives"] = perspectives
-
-
-
-        # this should wait, this shouldn't generate the first chat at this point, it should wait until the thigns are selected
-
-        #responses = first_chat(user_input, perspectives)
-
-        #for num_key in perspectives.keys():
-        #    session_data[num_key] = [{"user": user_input, "ai": responses[num_key]}]
-        #    session_data["all"].append({"user": user_input, "ai": responses[num_key], "perspective": num_key})
-
-        return jsonify({
-            "perspectives": perspectives})
-
-    
-    elif: 
-    
-
-    # post follow up
-    else:
-
-        # it is triggering this else statement on the confirm selection click
-        
-        print("FOLLOW UP")
-        perspectives = session_data["perspectives"]
-        responses = {}
-
-
-
-        # this statement is wrong, it should not get all the perspectives
-        if selected_tab == "all":
-            selected_perspectives = session_data["selected_perspectives"] or list(perspectives.keys())
-        else:
-            selected_perspectives = [selected_tab]
-
-        print(selected_perspectives)
-
-        for num_key in selected_perspectives:
-            print("for loop")
-            chat_history = [
-                {"role": "system", "content": f"Continue responding as {perspectives[num_key]}."}
-            ]
-
-            for message in session_data.get(num_key, []):
-                chat_history.append({"role": "user", "content": message["user"]})
-                chat_history.append({"role": "assistant", "content": message["ai"]})
-
-            chat_history.append({"role": "user", "content": user_input})
-
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=chat_history,
-                temperature=0.7,
-                max_tokens=200
-            )
-
-            ai_response = response.choices[0].message.content.strip()
-            responses[num_key] = ai_response
-
-            session_data[num_key].append({"user": user_input, "ai": ai_response})
-            session_data["all"].append({"user": user_input, "ai": ai_response, "perspective": num_key})
-        
-        print("Hit before return")
-        return jsonify({
-            "responses": responses,
-            "conversations": session_data,
-            "perspectives": perspectives
-        })
-"""
 
 @app.route('/get_response', methods=['POST'])
 def get_response():
