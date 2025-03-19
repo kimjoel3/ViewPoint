@@ -3,24 +3,16 @@
 let selectedPerspectives = [];
 let perspectives = {};
 
-// perspectives.js (loaded after debate.js)
 
-// Fetch perspectives from user input
-// In fetchPerspectives:
-// fetchPerspectives(userInput) – simplified example
 function fetchPerspectives(userInput) {
-    // Save the user’s initial question for later
     initialUserInput = userInput;
     
     API.fetchPerspectives(userInput)
       .then(data => {
         if (data.perspectives) {
-          // 1) Store the server’s dictionary in window.perspectives
           window.perspectives = data.perspectives;
-          // 2) Also store it locally if needed
           perspectives = data.perspectives;
           
-          // 3) Now render them in the UI
           displayPerspectives();
         } else {
           console.error("No perspectives found in response:", data);
@@ -38,10 +30,7 @@ function displayPerspectives() {
     const list = document.getElementById("perspective-list");
     list.innerHTML = "";
   
-    // 'window.perspectives' should look like { "1": "Peacekeeper", "2": "Cost-split minimalist", ... }
     Object.entries(window.perspectives).forEach(([key, text]) => {
-      // 'key' will be "1" or "2" or "3" etc.
-      // 'text' will be "Peacekeeper – conciliatory" or "Cost-split minimalist"
   
       const button = document.createElement("button");
       button.className = "perspective-item";

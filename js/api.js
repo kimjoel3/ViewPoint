@@ -51,13 +51,10 @@ const API = {
     },
 
     // Send follow-up message to specific perspective
-    // Send follow-up message to specific perspective
 sendFollowUp: function(userInput, currentTab, selectedPerspectives) {
-    // Remove any existing loading indicators first
     const existingLoaders = document.querySelectorAll('[id$="-loading"]');
     existingLoaders.forEach(loader => loader.remove());
     
-    // Get the main spinner if it exists
     const spinner = document.getElementById("loading-spinner");
     if (spinner) {
         spinner.innerHTML = '<span class="spinner-icon"></span> Loading follow-up response...';
@@ -127,7 +124,7 @@ sendFollowUp: function(userInput, currentTab, selectedPerspectives) {
     });
 },
 
-    // Get debate response
+    //response
     getDebateResponse: function(params) {
         return fetch("/get_debate_response", {
             method: "POST",
@@ -149,7 +146,7 @@ sendFollowUp: function(userInput, currentTab, selectedPerspectives) {
         });
     },
 
-    // Get debate counterpoint
+    // counterpoint
     getDebateCounterpoint: function(params) {
         return fetch("/get_debate_counterpoint", {
             method: "POST",

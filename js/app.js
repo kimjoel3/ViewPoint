@@ -11,10 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollToBottom("chat-messages");
     }
     
-    // Set up initial scroll for any existing messages
     scrollToBottom("chat-messages");
     
-    // Set up mutation observer to detect when new messages are added
     setupScrollObserver();
     
     // Initialize the application

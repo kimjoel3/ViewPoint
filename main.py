@@ -3,6 +3,8 @@ from flask import Flask, request, render_template, jsonify, redirect, session
 import os
 from dotenv import load_dotenv
 import uuid
+import re
+
 
 # Load environment variables
 load_dotenv()
@@ -12,8 +14,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Initialize Flask app with proper static and template folders
 app = Flask(__name__, 
-    static_url_path='',  # Empty string is important for serving static files
-    static_folder='.',   # Serves files from current directory
+    static_url_path='',  
+    static_folder='.',   
     template_folder='pages')
 
 # Set a secret key for session management
@@ -49,29 +51,22 @@ def generate_perspectives(user_input):
     )
     
     perspectives_text = response.choices[0].message.content.strip()
+
+    # ai perspective cleanup
     
-    # More robust parsing:
-    # First, replace any multiple consecutive newlines with a single one
     perspectives_text = '\n'.join(line for line in perspectives_text.split('\n') if line.strip())
     
-    # Then look for numbered formats like "1. Perspective" or similar patterns
-    import re
     numbered_pattern = re.compile(r'^\d+[\.\)\-:]\s*(.*?)$', re.MULTILINE)
     matches = numbered_pattern.findall(perspectives_text)
     
     if matches:
-        # If we found numbered perspectives, use those
         raw_perspectives = [p.strip() for p in matches if p.strip()]
     else:
-        # Otherwise fall back to simple newline splitting
         raw_perspectives = [p.strip() for p in perspectives_text.split('\n') if p.strip()]
     
-    # Additional cleanup for each perspective
     cleaned_perspectives = []
     for p in raw_perspectives:
-        # Replace any internal newlines with spaces
         p = ' '.join(line.strip() for line in p.split('\n'))
-        # Remove any double spaces
         p = ' '.join(p.split())
         cleaned_perspectives.append(p)
     
@@ -251,7 +246,6 @@ def get_debate_response():
     
     # Check if this is the first or second perspective
     is_second = 'other_perspective' in data
-    other_perspective_key = data.get('other_perspective_key', '')
     other_perspective = data.get('other_perspective', '')
     other_response = data.get('other_response', '')
     
@@ -339,14 +333,12 @@ def get_debate_response():
 @app.route('/get_debate_counterpoint', methods=['POST'])
 def get_debate_counterpoint():
     """Generate a counterpoint in an ongoing debate with access to full history."""
-    # Get session ID from Flask session
-    session_id = session.get('session_id')
+
     
     data = request.json
     
     perspective_key = data.get('perspective_key')
     perspective = data.get('perspective')
-    other_perspective_key = data.get('other_perspective_key')
     other_perspective = data.get('other_perspective')
     other_response = data.get('other_response', '').strip()
     debate_session_id = data.get('session_id')
@@ -421,7 +413,11 @@ def get_debate_counterpoint():
         print(f"Error generating debate counterpoint: {str(e)}")
         return jsonify({"error": "Failed to generate counterpoint"}), 500
 
-# Route to clear session data (useful for testing/debugging)
+
+
+
+
+# Route to clear session data 
 @app.route('/clear_session', methods=['GET'])
 def clear_session():
     """Clear the current session data for testing purposes"""
