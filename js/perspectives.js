@@ -34,7 +34,7 @@ function displayPerspectives() {
   
       const button = document.createElement("button");
       button.className = "perspective-item";
-      button.textContent = text;         // <--- The label
+      button.textContent = text;      
       button.setAttribute("data-key", key);
   
       button.addEventListener("click", () => {
@@ -57,7 +57,6 @@ function displayPerspectives() {
 function confirmPerspectivesAndInitializeChat() {
     if (selectedPerspectives.length === 3) {
         window.selectedPerspectives = [...selectedPerspectives];
-        // Hide the global input bar
         document.querySelector(".input-container").style.display = "none";
         
         API.getInitialResponses(initialUserInput, selectedPerspectives)
@@ -75,10 +74,8 @@ function confirmPerspectivesAndInitializeChat() {
         document.getElementById("perspective-list").style.display = "none";
         document.getElementById("confirm-selection").style.display = "none";
         
-        // Add chat input container
         addChatInputContainer();
         
-        // Explicitly initialize the debate feature after chat setup is complete
         setTimeout(function() {
             initiateDebateFeature();
             
@@ -91,7 +88,6 @@ function confirmPerspectivesAndInitializeChat() {
     })
     .catch((error) => {
         console.error("Error confirming perspectives:", error);
-        // If there's an error, show the input bar again
         document.querySelector(".input-container").style.display = "flex";
     });
 
@@ -100,38 +96,30 @@ function confirmPerspectivesAndInitializeChat() {
     }
 }
 
-// Ensure the debate.js file is properly loaded
-// Add this debug code to the top of debate.js
-console.log("Debate.js loaded and running");
 
 // Modified initiateDebateFeature function with better error handling
 function initiateDebateFeature() {
 
+
+
+
+    //debug stuff
+
     console.log("Initializing debate feature");
 
-    // Wait for debate.js to fully load
     if (typeof window.showDebateSelection !== 'function') {
         console.warn("Waiting for debate.js to load...");
         setTimeout(initiateDebateFeature, 100);
         return;
     }
-
-    // Proceed with initializing the debate feature
-    console.log("Debate feature loaded successfully.");
-
-    // Check if debate.js is loaded
     if (typeof window.showDebateSelection !== 'function') {
         console.error("Error: showDebateSelection function is not defined. Ensure debate.js is loaded before perspectives.js.");
         return;
     }
-
-    // Check if button already exists
     if (document.getElementById("start-debate-btn")) {
         console.log("Debate button already exists");
         return;
     }
-
-    // Check if the content area exists
     const contentArea = document.querySelector(".content");
     if (!contentArea) {
         console.error("Content area not found - cannot add debate button");
@@ -306,13 +294,11 @@ function sendChatMessage() {
     // Send message to API
     API.sendFollowUp(userInput, currentTab, selectedPerspectives)
         .then(data => {
-            // Remove loading indicator
             const loadingElement = document.getElementById("chat-loading");
             if (loadingElement) {
                 loadingElement.remove();
             }
 
-            // Call the updateChatInterface function from ui.js
             if (typeof window.updateChatInterface === 'function') {
                 window.updateChatInterface(data);
             } else {

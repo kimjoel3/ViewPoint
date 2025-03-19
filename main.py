@@ -234,15 +234,14 @@ def get_response():
 @app.route('/get_debate_response', methods=['POST'])
 def get_debate_response():
     """Generate a debate response from a perspective on a topic."""
-    # Get session ID from Flask session
-    session_id = session.get('session_id')
+
     
     data = request.json
     
     perspective_key = data.get('perspective_key')
     perspective = data.get('perspective')
     topic = data.get('topic', '').strip()
-    debate_session_id = data.get('session_id', str(uuid.uuid4()))  # Use provided debate ID or generate one
+    debate_session_id = data.get('session_id', str(uuid.uuid4())) 
     
     # Check if this is the first or second perspective
     is_second = 'other_perspective' in data

@@ -11,28 +11,21 @@ function scrollToBottom(elementId) {
     }
 }
 
-// Make it available globally
 window.scrollToBottom = scrollToBottom;
 
 // Display messages for the selected tab
 function displayMessagesForTab(tab) {
-    // Get chat messages container
     const chatMessages = document.getElementById("chat-messages");
     
     if (!chatMessages) return;
 
-    console.log("Displaying messages for tab:", tab);
-    console.log("Available conversations:", conversationHistory?.conversations);
-    
-    // Clear existing messages first
+
     chatMessages.innerHTML = "";
     
-    // Keep track of displayed messages to prevent duplicates
     const displayedMessages = new Set();
 
     if (conversationHistory && conversationHistory.conversations && conversationHistory.conversations[tab]) {
         conversationHistory.conversations[tab].forEach((message, index) => {
-            // Create a unique identifier for this message pair
             const msgId = `${tab}-${index}-${message.user.substring(0, 10)}`;
             
             // Skip if we've already displayed this message
@@ -65,10 +58,8 @@ function updateChatInterface(data) {
     console.log("Update chat interface with data:", data);
     console.log("Current active tab:", currentTab);
     
-    // Initialize conversation history if needed
     if (!conversationHistory.conversations) conversationHistory.conversations = {};
     
-    // Ensure we have data in the expected format
     if (!data || !data.conversations || !data.conversations[currentTab]) {
         console.error("Invalid data format or missing conversations for current tab:", currentTab);
         return;
@@ -85,11 +76,9 @@ function updateChatInterface(data) {
                 conversationHistory.conversations[tabKey] = [];
             }
             
-            // Get the latest user input from the incoming data
             const newMessages = data.conversations[tabKey];
             
-            // Enhanced duplicate detection - compare timestamps or message indices if available
-            // Otherwise, use a more sophisticated comparison method than simple string concatenation
+       
             const existingMessages = conversationHistory.conversations[tabKey];
             
             for (const newMsg of newMessages) {
@@ -112,7 +101,6 @@ function updateChatInterface(data) {
         });
     }
     
-    // Display messages for the current tab
     displayMessagesForTab(currentTab);
     scrollToBottom("chat-messages");
 }
@@ -131,10 +119,10 @@ function sendMessage() {
         const activeTab = document.querySelector(".tab.active");
         const currentTab = activeTab ? activeTab.getAttribute("data-tab") : selectedPerspectives[0];
         
-        // Clear input field
+        
         document.getElementById("user-input").value = "";
         
-        // Show loading spinner
+       
         const spinner = document.getElementById("loading-spinner");
         spinner.innerHTML = '<span class="spinner-icon"></span> Loading follow-up response...';
         spinner.style.display = "flex";
@@ -247,7 +235,6 @@ function isInViewport(element) {
 
 // Show notification 
 function showNotification(message, type = "info", duration = 3000) {
-    // Create notification element
     const notification = document.createElement("div");
     notification.className = "notification " + type;
     notification.textContent = message;
@@ -275,7 +262,6 @@ function showNotification(message, type = "info", duration = 3000) {
         notification.style.color = "white";
     }
     
-    // Add to document
     document.body.appendChild(notification);
     
     // Remove after duration
@@ -315,7 +301,6 @@ function showLoading(message, elementId = null) {
     
     container.appendChild(loadingDiv);
     
-    // Scroll to bottom if applicable
     if (typeof scrollToBottom === 'function') {
         scrollToBottom(elementId || "chat-messages");
     }

@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize the application
     function setupEventListeners() {
-        // Remove existing event listeners if any
+
+
         const sendButton = document.getElementById("send-button");
         const userInput = document.getElementById("user-input");
         const confirmButton = document.getElementById("confirm-selection");
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const newSendButton = sendButton.cloneNode(true);
             sendButton.parentNode.replaceChild(newSendButton, sendButton);
             
-            // Re-add the event listener
             newSendButton.addEventListener("click", () => {
                 const message = document.getElementById("user-input").value.trim();
                 if (!message) return;
@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const newUserInput = userInput.cloneNode(true);
             userInput.parentNode.replaceChild(newUserInput, userInput);
             
-            // Re-add the event listener
             newUserInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") {
                     document.getElementById("send-button").click();
@@ -56,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const newConfirmButton = confirmButton.cloneNode(true);
             confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
             
-            // Re-add the event listener
             newConfirmButton.addEventListener("click", () => {
                 if (selectedPerspectives.length === 3) {
                     confirmPerspectivesAndInitializeChat();
@@ -97,37 +95,27 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Adjust for mobile
         if (width <= 768) {
-            // Adjust debate layout if active
             const debateLayout = document.getElementById("debate-layout");
             if (debateLayout) {
                 debateLayout.style.flexDirection = "column";
             }
-            
-            // Adjust confirm button width
             const confirmButton = document.getElementById("confirm-selection");
             if (confirmButton) {
                 confirmButton.style.width = "80%";
             }
-            
-            // Adjust input container width
             const inputContainer = document.querySelector(".input-container");
             if (inputContainer) {
                 inputContainer.style.width = "90%";
             }
         } else {
-            // Reset for desktop
             const debateLayout = document.getElementById("debate-layout");
             if (debateLayout) {
                 debateLayout.style.flexDirection = "row";
             }
-            
-            // Reset confirm button width
             const confirmButton = document.getElementById("confirm-selection");
             if (confirmButton) {
                 confirmButton.style.width = "25%";
             }
-            
-            // Reset input container width
             const inputContainer = document.querySelector(".input-container");
             if (inputContainer) {
                 inputContainer.style.width = "75%";
@@ -203,12 +191,10 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log("Session cleared:", data);
             
-            // Also reset all client-side state
             window.perspectives = {};
             window.selectedPerspectives = [];
             window.conversationHistory = {};
             
-            // Reset UI to initial state
             document.getElementById("subheading").textContent = "Step 1: Describe your situation";
             document.querySelector(".input-container").style.display = "flex";
             

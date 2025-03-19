@@ -194,8 +194,6 @@ function initiateDebateFeature() {
 }
 
 // Show perspective selection for debate
-// Show perspective selection for debate
-// Show perspective selection for debate
 function showDebateSelection() {
     console.log("Running showDebateSelection...");
 
@@ -235,12 +233,10 @@ function showDebateSelection() {
     perspectiveButtonContainer.style.justifyContent = "center";
     perspectiveButtonContainer.style.marginBottom = "20px";
 
-    // Add buttons only for the 3 previously selected perspectives
     window.selectedPerspectives.forEach((key) => {
         const button = document.createElement("button");
         button.className = "debate-perspective-btn";
         
-        // Use the perspective text from the previously generated perspectives
         button.textContent = window.perspectives[key];
         button.setAttribute("data-key", key);
         button.style.padding = "10px 15px";
@@ -542,7 +538,6 @@ function exitDebateMode() {
 }
 
 // Start the debate with user's topic
-// Start the debate with user's topic
 function startDebate() {
     const topic = document.getElementById("debate-input").value.trim();
     if (!topic) return;
@@ -706,18 +701,13 @@ function startDebate() {
         });
 }
 
-// Create a safer version of the API.sendFollowUp function
 if (typeof API !== 'undefined' && API.sendFollowUp) {
-    const originalSendFollowUp = API.sendFollowUp;
     
-    // Replace with fixed version that handles missing elements
     API.sendFollowUp = function(userInput, currentTab, selectedPerspectives) {
         console.log("Using fixed sendFollowUp function");
         
-        // Check if spinner exists before trying to modify it
         const spinner = document.getElementById("loading-spinner");
         
-        // If spinner exists, update it; otherwise, create a temporary loading indicator in the chat
         if (spinner) {
             if (spinner.innerHTML !== undefined) {
                 spinner.innerHTML = '<span class="spinner-icon"></span> Loading follow-up response...';
@@ -727,7 +717,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             }
         } else {
             console.log("No loading-spinner element found. Using alternative loading indicator.");
-            // Create a temporary loading indicator in the chat if possible
             const chatMessages = document.getElementById("chat-messages");
             if (chatMessages) {
                 const tempLoading = document.createElement("div");
@@ -754,12 +743,10 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
         })
         .then(response => response.json())
         .then(data => {
-            // Hide spinner if it exists
             if (spinner) {
                 spinner.style.display = "none";
             }
             
-            // Remove temporary loading indicator if it exists
             const tempLoading = document.getElementById("temp-loading-indicator");
             if (tempLoading) {
                 tempLoading.remove();
@@ -769,12 +756,10 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             return data;
         })
         .catch(error => {
-            // Hide spinner if it exists
             if (spinner) {
                 spinner.style.display = "none";
             }
             
-            // Remove temporary loading indicator if it exists
             const tempLoading = document.getElementById("temp-loading-indicator");
             if (tempLoading) {
                 tempLoading.remove();
@@ -805,7 +790,7 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
     scrollToBottom("debate-messages");
     
     // Get first perspective response
-    const perspectiveKey = debatePerspectives[0]; // Ensure this is properly assigned
+    const perspectiveKey = debatePerspectives[0]; 
     const otherPerspectiveKey = debatePerspectives[1];
 
 
@@ -828,7 +813,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             // Save the session ID from the response
             debateSessionId = response.session_id;
             
-            // Remove loading indicator
             const loadingElement = document.getElementById("debate-loading");
             if (loadingElement) {
                 loadingElement.remove();
@@ -851,7 +835,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             const debateMessages = document.getElementById("debate-messages");
             if (debateMessages) {
                 debateMessages.appendChild(loadingDiv2);
-                // Scroll to bottom
                 scrollToBottom("debate-messages");
             }
             
@@ -922,7 +905,6 @@ function displayDebateResponse(perspectiveKey, response) {
     responseDiv.setAttribute("data-perspective", perspectiveKey);
     responseDiv.style.margin = "15px 0";
     
-    // Different styling for each perspective
     let bgColor = perspectiveKey === debatePerspectives[0] ? "#f1e6fb" : "#e6f0fa";
     
     responseDiv.innerHTML = 
@@ -959,10 +941,8 @@ function continueDebate(perspectiveKey) {
     // Loop from the end to find the most recent response from the other perspective
     for (let i = allResponses.length - 1; i >= 0; i--) {
         if (allResponses[i].getAttribute('data-perspective') === otherPerspectiveKey) {
-            // Extract just the text content, not the HTML with the perspective name
             const responseTextElement = allResponses[i].querySelector('div');
             if (responseTextElement) {
-                // Remove the "Perspective Name:" part from the beginning
                 let fullText = responseTextElement.textContent.trim();
                 latestOtherResponse = fullText.substring(fullText.indexOf(':') + 1).trim();
             } else {
@@ -986,7 +966,6 @@ function continueDebate(perspectiveKey) {
     const debateMessages = document.getElementById("debate-messages");
     if (debateMessages) {
         debateMessages.appendChild(loadingDiv);
-        // Scroll to bottom
         scrollToBottom("debate-messages");
     } else {
         console.error("Debate messages container not found when showing loading indicator");
@@ -1045,9 +1024,7 @@ function continueDebate(perspectiveKey) {
 
 // Create a safer version of the API.sendFollowUp function
 if (typeof API !== 'undefined' && API.sendFollowUp) {
-    const originalSendFollowUp = API.sendFollowUp;
     
-    // Replace with fixed version that handles missing elements
     API.sendFollowUp = function(userInput, currentTab, selectedPerspectives) {
         console.log("Using fixed sendFollowUp function");
         
@@ -1064,7 +1041,6 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             }
         } else {
             console.log("No loading-spinner element found. Using alternative loading indicator.");
-            // Create a temporary loading indicator in the chat if possible
             const chatMessages = document.getElementById("chat-messages");
             if (chatMessages) {
                 const tempLoading = document.createElement("div");
@@ -1091,12 +1067,10 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
         })
         .then(response => response.json())
         .then(data => {
-            // Hide spinner if it exists
             if (spinner) {
                 spinner.style.display = "none";
             }
             
-            // Remove temporary loading indicator if it exists
             const tempLoading = document.getElementById("temp-loading-indicator");
             if (tempLoading) {
                 tempLoading.remove();
@@ -1106,12 +1080,10 @@ if (typeof API !== 'undefined' && API.sendFollowUp) {
             return data;
         })
         .catch(error => {
-            // Hide spinner if it exists
             if (spinner) {
                 spinner.style.display = "none";
             }
             
-            // Remove temporary loading indicator if it exists
             const tempLoading = document.getElementById("temp-loading-indicator");
             if (tempLoading) {
                 tempLoading.remove();
